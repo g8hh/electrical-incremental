@@ -1,0 +1,143 @@
+* {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    table-align: center;
+	text-align: center;
+}
+
+body {
+    color: white;
+    background-color: #77f;
+	overflow-x: hidden;
+	font-size: 14px;
+}
+
+table, tr {
+    display: flex;
+    justify-content: center;
+}
+
+button {
+    border: solid 3px black;
+    background-color: white;
+    font-size: 14px;
+	cursor: pointer;
+    border-radius: 10px;
+}
+
+h1 {
+    display: inline;
+	font-weight: normal;
+    font-size: 35px;
+}
+
+h2 {
+	display: inline;
+	font-weight: normal;
+    font-size: 25px;
+}
+
+.tab_button {
+    width: 120px;
+    height: 36px;
+    border-radius: 18px;
+    font-size: 11px;
+    background-color: #66f;
+    color: white;
+}
+
+.tab_button.normal_tab:hover {
+    background-color: #55f;
+}
+
+.tab_button.anion_tab {
+    background-color: #ff5953;
+}
+.tab_button.anion_tab:hover {
+    background-color: #e43b35;
+}
+
+.table_center {
+    display: flex;
+    justify-content: center;
+    flex-flow: row wrap;
+}
+
+.main1 {
+    width: 100%;
+    background-color: #55f;
+}
+
+.main_anion {
+    width: 100%;
+    background-color: #e43b35;
+}
+
+.upgrade {
+    width: 150px;
+    height: 150px;
+    border-radius: 20px;
+    color: white;
+    font-size: 10px;
+    transition-duration: 0.5s;
+    cursor: default;
+    background-color: #666
+}
+
+.upgrade.electron.can,
+.gen_button.can {
+    background-color: #66f;
+    cursor: pointer;
+}
+
+.can {
+	cursor: pointer;
+}
+
+.can:hover {
+	transform: scale(1.15, 1.15);
+}
+
+.electrical_generator {
+    width: 300px;
+    height: 250px;
+    background-color: #77f;
+    border-radius: 20px;
+    margin: 3px;
+}
+
+.gen_button {
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+    color: white;
+    transition-duration: 0.5s;
+    cursor: default;
+    background-color: #666
+}
+
+.gen_button.anion.can {
+    background-color: #f04741;
+}
+
+.prestige_button {
+    width: 180px;
+    height: 150px;
+    font-size: 12px;
+    border-radius: 20px;
+    background-color: #666;
+    transition-duration: 0.5s;
+    cursor: default;
+}
+
+.prestige_button.anion.can {
+    background-color: #ff5953;
+    cursor: pointer;
+}
+
+.anion_types {
+    border-radius: 20px;
+    width: 270px;
+    height: 200px;
+    background-color: #ff5953;
+    margin: 3px;
+}

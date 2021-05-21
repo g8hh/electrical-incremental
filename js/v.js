@@ -6,7 +6,9 @@ function loadVue() {
 	    data: {
 			player,
 			FUNCTIONS,
+			BUYABLES,
 			UPGRADES,
+			AUTOS,
 			TABS,
             format,
         }

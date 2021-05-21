@@ -7,6 +7,18 @@ function ex(x){
     return nx;
 }
 
+ExpantaNum.prototype.softcap = function (start,force,mode){
+    var x = this.clone()
+    if([0,"pow"].includes(mode)) x = x.div(start).pow(force).mul(start).min(x)
+    if([1,"mul"].includes(mode)) x = x.sub(start).div(force).add(start).min(x)
+    return x
+}
+
+document.addEventListener('mousemove', e => {
+    document.documentElement.style.setProperty('--mouse-x', e.x);
+    document.documentElement.style.setProperty('--mouse-y', e.y);
+}, {passive: true});
+
 function calc(dt) {
     player.time += dt
 
@@ -15,10 +27,18 @@ function calc(dt) {
     else player.electrons = ele_gain
 
     checkUnlock()
+    automatons()
 
     if (player.anions.unl) player.anions.charges = player.anions.charges.add(FUNCTIONS.anions.charges.gain().mul(dt))
 
     for (let x = 1; x <= player.eg_length; x++) player.electrical_generators[x].powers = player.electrical_generators[x].powers.add(FUNCTIONS.electrical_generators.getPowerGain(x).mul(dt))
+}
+
+function automatons() {
+    if (UPGRADES.includesUpgrade('2-2')) {
+        if (player.automatons.elec_buyable) for (let x = 1; x <= BUYABLES.electrons.cols; x++) BUYABLES.electrons.buy(x)
+        if (player.automatons.elec_gens) for (let x = 1; x <= player.eg_length; x++) FUNCTIONS.electrical_generators.buy(x)
+    }
 }
 
 function checkUnlock() {
@@ -39,6 +59,12 @@ const PLAYER_DATA = {
         types: {},
         respec_types: false,
     },
+    upgrades: {
+        unl: false,
+        buyed: {},
+    },
+    upg_choosed: '',
+    automatons: {},
 }
 
 function wipe() {
@@ -50,6 +76,7 @@ function loadPlayer(load) {
     checkIfUndefined()
     convertToExpantaNum()
     player.tabs = PLAYER_DATA.tabs
+    player.upg_choosed = PLAYER_DATA.upg_choosed
 }
 
 function checkIfUndefined() {
@@ -65,11 +92,18 @@ function checkIfUndefined() {
     if (player.anions.charges === undefined) player.anions.charges = data.anions.charges
     if (player.anions.types === undefined) player.anions.types = data.anions.types
     if (player.anions.respec_types === undefined) player.anions.respec_types = data.anions.respec_types
+
+    if (player.upgrades === undefined) player.upgrades = data.upgrades
+    if (player.upgrades.unl === undefined) player.upgrades.unl = data.upgrades.unl
+    if (player.upgrades.buyed === undefined) player.upgrades.buyed = data.upgrades.buyed
+
+    if (player.automatons === undefined) player.automatons = data.automatons
+    for (let x = 1; x <= AUTOS.cols; x++) if (player.automatons[AUTOS[x].id] === undefined) player.automatons[AUTOS[x].id] = false
 }
 
 function convertToExpantaNum() {
     player.electrons = ex(player.electrons)
-    for (let x = 1; x <= UPGRADES.electrons.cols; x++) if (player.electron_upgrades[x] !== undefined) player.electron_upgrades[x] = ex(player.electron_upgrades[x])
+    for (let x = 1; x <= BUYABLES.electrons.cols; x++) if (player.electron_upgrades[x] !== undefined) player.electron_upgrades[x] = ex(player.electron_upgrades[x])
     for (let x = 1; x <= player.eg_length; x++) {
         player.electrical_generators[x].powers = ex(player.electrical_generators[x].powers)
         player.electrical_generators[x].lvl = ex(player.electrical_generators[x].lvl)

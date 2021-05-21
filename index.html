@@ -9,6 +9,7 @@
     <script src="js/ExpantaNum.js"></script>
     <script src="js/saves.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/upgrades.js"></script>
     <script src="js/v.js"></script>
 
     <title>Electrical Incremental</title>
@@ -33,13 +34,13 @@
             <div class='main1'>
                 <h2>Buyables</h2><br><br>
                 <div class='table_center'>
-                    <div v-for='x in UPGRADES.electrons.cols' v-if='UPGRADES.electrons[x]'>
-                        <button class='upgrade electron' v-if='UPGRADES.electrons[x].unl()' v-bind:class='{can: UPGRADES.electrons.can(x)}' v-on:click='UPGRADES.electrons.buy(x)'>
-                            <b>{{ UPGRADES.electrons[x].title }}</b><br>
-                            {{ UPGRADES.electrons[x].desc() }}<br>
-                            <span v-if='UPGRADES.electrons[x].effDesc'>Currently: {{ UPGRADES.electrons[x].effDesc() }}<br></span>
-                            Level: {{ format(UPGRADES.electrons.getLevel(x), 0) }}<br>
-                            Cost: {{ format(UPGRADES.electrons[x].cost(), 0) }} electrons
+                    <div v-for='x in BUYABLES.electrons.cols' v-if='BUYABLES.electrons[x]'>
+                        <button class='upgrade electron' v-if='BUYABLES.electrons[x].unl()' v-bind:class='{can: BUYABLES.electrons.can(x)}' v-on:click='BUYABLES.electrons.buy(x)'>
+                            <b>{{ BUYABLES.electrons[x].title }}</b><br>
+                            {{ BUYABLES.electrons[x].desc() }}<br>
+                            <span v-if='BUYABLES.electrons[x].effDesc'>Currently: {{ BUYABLES.electrons[x].effDesc() }}<br></span>
+                            Level: {{ format(BUYABLES.electrons.getLevel(x), 0) }}<br>
+                            Cost: {{ format(BUYABLES.electrons[x].cost(), 0) }} electrons
                         </button>
                     </div>
                 </div><br>
@@ -66,7 +67,34 @@
             <button onclick="exporty()">Export</button>
             <button onclick="importy()">Import</button><br><br>
             "Electrical Incremental" - made by MrRedShark77<br>
-            Game Version - v1.0
+            Game Version - v1.0.1
+        </div><div v-if='player.tabs[0] == 3'>
+            You need to unlock more automatons!<br><br>
+            <div class="main1">
+                <br><div class='table_center'>
+                    <div v-for='x in AUTOS.cols' v-if='AUTOS[x].unl()' class="automaton">
+                        <div style='height: 100px;'><b>{{ AUTOS[x].title }}</b></div>
+                        Enabled: <input type="checkbox" v-model="player.automatons[AUTOS[x].id]">
+                    </div>
+                </div><br>
+            </div>
+        </div><div v-if='player.tabs[0] == 4'>
+            <div class='upgrade_popup' v-if='player.upg_choosed != ""'>
+                <div style="height: 100px">{{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].desc() }}</div>
+                <span v-if='UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc'>Currently: {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc() }}<br></span>
+                <span v-if='!UPGRADES.includesUpgrade(player.upg_choosed)'>Cost: {{ format(UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].cost(), 0) }} {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r].price }}</span>
+            </div>
+            <div v-for='r in UPGRADES.rows'>
+                <div class='main1'>
+                    <h2>{{ UPGRADES[r].title }}</h2><br><br>
+                    <div class='table_center'>
+                        <div v-for='c in UPGRADES[r].cols' v-if='UPGRADES[r][c].unl()'>
+                            <button class='upgrade_mini' v-on:click='UPGRADES[r].buy(c)' v-bind:class='{can: UPGRADES[r].can(c) && !UPGRADES.includesUpgrade(r+"-"+c), purchased: UPGRADES.includesUpgrade(r+"-"+c)}' v-on:mouseover="player.upg_choosed = r+'-'+c" v-on:mouseout="player.upg_choosed = ''">{{ UPGRADES[r].id+'-'+c }}</button>
+                        </div>
+                    </div>
+                    <br>
+                </div><br>
+            </div>
         </div><div v-if='player.tabs[0] == 5'>
             <div class='main_anion'>
                 You have <h2>{{ format(player.anions.points, 0) }}</h2> anions, which generates <h2>{{ format(FUNCTIONS.anions.effect(), 1) }}</h2> anion charges per second

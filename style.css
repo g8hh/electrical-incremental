@@ -1,3 +1,8 @@
+:root {
+    --mouse-x: 0;
+    --mouse-y: 0;
+}
+
 * {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     table-align: center;
@@ -84,7 +89,8 @@ h2 {
 }
 
 .upgrade.electron.can,
-.gen_button.can {
+.gen_button.can,
+.upgrade_mini.can {
     background-color: #66f;
     cursor: pointer;
 }
@@ -140,4 +146,38 @@ h2 {
     height: 200px;
     background-color: #ff5953;
     margin: 3px;
+}
+
+.upgrade_popup {
+    position: absolute;
+    top: calc(calc(var(--mouse-y) + 15) * 1px);
+    left: calc(calc(var(--mouse-x) + 15) * 1px);
+    width: 240px;
+    height: 170px;
+    font-size: 12px;
+    border-radius: 20px;
+    border: solid 3px black;
+    background-color: #66f;
+    padding: 10px;
+    z-index: 1;
+}
+
+.upgrade_mini {
+    width: 80px;
+    height: 80px;
+    background-color: #666;
+    transition-duration: 0.5s;
+    cursor: default;
+}
+.upgrade_mini.purchased {
+    background-color: #3a3;
+}
+
+.automaton {
+    width: 220px;
+    height: 160px;
+    background-color: #77f;
+    border-radius: 20px;
+    margin: 3px;
+    padding: 5px;
 }

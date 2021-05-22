@@ -26,7 +26,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 3,
+        cols: 8,
         1: {
             unl() { return true },
             desc() { return `Multiply electrical generator’s effects based on the sum of levels on these generators.` },
@@ -59,6 +59,43 @@ const UPGRADES = {
             },
             effDesc(x=this.effect()) { return format(x.sub(1).mul(100), 2)+'%' },
         },
+        4: {
+            unl() { return true },
+            desc() { return `Raise electrons gain by ^1.15` },
+            cost() { return E(1e28) },
+        },
+        5: {
+            unl() { return player.anions.anti_anions.gte(1) },
+            desc() { return `Unlock new electron buyable and make electron buyable “More Electrical Powers” is 15% cheaper.` },
+            cost() { return E(1e45) },
+        },
+        6: {
+            unl() { return player.anions.anti_anions.gte(1) },
+            desc() { return `Gain more anions based on unspent electrons, and unspent anions boost electrons gain.` },
+            cost() { return E(1e63) },
+            effect() {
+                let eff = {}
+                eff.anions = player.electrons.add(1).log10().add(1).pow(1/2)
+                eff.electrons = player.anions.points.add(1).log10().add(1).pow(3)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x.anions, 2)+'x to anions gain, '+format(x.electrons, 2)+'x to electrons gain' },
+        },
+        7: {
+            unl() { return player.anions.anti_anions.gte(1) },
+            desc() { return `Anti-electrical anions boost anions effect.` },
+            cost() { return E(1e72) },
+            effect() {
+                let eff = player.anions.anti_anions.add(1).pow(1/8)
+                return eff
+            },
+            effDesc(x=this.effect()) { return '^'+format(x) },
+        },
+        8: {
+            unl() { return player.anions.anti_anions.gte(1) },
+            desc() { return `The Anti-Electrical Anions requirement is 33% slower.` },
+            cost() { return E(1e92) },
+        },
     },
     2: {
         rowID: 2,
@@ -72,7 +109,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 4,
+        cols: 8,
         1: {
             unl() { return true },
             desc() { return `Make electron buyable “More Electrons” is 50% cheaper.` },
@@ -97,6 +134,36 @@ const UPGRADES = {
             unl() { return true },
             desc() { return `Gain 5x more anions.` },
             cost() { return E(100) },
+        },
+        5: {
+            unl() { return true },
+            desc() { return `Electron Buyables & Generators are no longer buys with electrons, and unspent anions boost electron’s buyable “More Electrical Powers” effect.` },
+            cost() { return E(1500) },
+            effect() {
+                let eff = player.anions.points.add(1).pow(1/2)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x' },
+        },
+        6: {
+            unl() { return player.anions.anti_anions.gte(1) },
+            desc() { return `Gain more anions based on your anti-electrical anions.` },
+            cost() { return E(3200) },
+            effect() {
+                let eff = player.anions.anti_anions.add(1).pow(1.5)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x' },
+        },
+        7: {
+            unl() { return player.anions.anti_anions.gte(1) },
+            desc() { return `Keep electron upgrades on reset for anions.` },
+            cost() { return E(1e5) },
+        },
+        8: {
+            unl() { return player.anions.anti_anions.gte(1) },
+            desc() { return `You can bulk electron buyable & generators, and make electron buyable “Stronger Electrons” is 50% cheaper.` },
+            cost() { return E(1e6) },
         },
     },
 }

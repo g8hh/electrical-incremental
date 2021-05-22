@@ -36,8 +36,14 @@ function calc(dt) {
 
 function automatons() {
     if (UPGRADES.includesUpgrade('2-2')) {
-        if (player.automatons.elec_buyable) for (let x = 1; x <= BUYABLES.electrons.cols; x++) BUYABLES.electrons.buy(x)
-        if (player.automatons.elec_gens) for (let x = 1; x <= player.eg_length; x++) FUNCTIONS.electrical_generators.buy(x)
+        if (player.automatons.elec_buyable) for (let x = 1; x <= BUYABLES.electrons.cols; x++) {
+            if (UPGRADES.includesUpgrade('2-8') && x != 3) BUYABLES.electrons.bulk(x)
+            else BUYABLES.electrons.buy(x)
+        }
+        if (player.automatons.elec_gens) for (let x = 1; x <= player.eg_length; x++) {
+            if (UPGRADES.includesUpgrade('2-8')) FUNCTIONS.electrical_generators.bulk(x)
+            else FUNCTIONS.electrical_generators.buy(x)
+        }
     }
 }
 
@@ -58,6 +64,7 @@ const PLAYER_DATA = {
         charges: E(0),
         types: {},
         respec_types: false,
+        anti_anions: E(0),
     },
     upgrades: {
         unl: false,
@@ -92,6 +99,7 @@ function checkIfUndefined() {
     if (player.anions.charges === undefined) player.anions.charges = data.anions.charges
     if (player.anions.types === undefined) player.anions.types = data.anions.types
     if (player.anions.respec_types === undefined) player.anions.respec_types = data.anions.respec_types
+    if (player.anions.anti_anions === undefined) player.anions.anti_anions = data.anions.anti_anions
 
     if (player.upgrades === undefined) player.upgrades = data.upgrades
     if (player.upgrades.unl === undefined) player.upgrades.unl = data.upgrades.unl
@@ -111,6 +119,7 @@ function convertToExpantaNum() {
 
     player.anions.points = ex(player.anions.points)
     player.anions.charges = ex(player.anions.charges)
+    player.anions.anti_anions = ex(player.anions.anti_anions)
     for (let x = 1; x <= FUNCTIONS.anions.types.cols; x++) if (player.anions.types[x] !== undefined) player.anions.types[x] = ex(player.anions.types[x])
 }
 

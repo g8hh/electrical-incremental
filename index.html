@@ -120,7 +120,7 @@
                 <br>
             </div><br>
             <div class='main_anion'>
-                You have <h2>{{ format(player.anions.anti_anions, 0) }}<span v-if='FUNCTIONS.cations.effect().add.gt(0)'> + {{ format(FUNCTIONS.cations.effect().add, 2) }}</span></h2> anti-electrical anions, which which makes charged anions types is <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().strDesc, 2) }}</h2>% stronger, and adds <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().add) }}</h2> bouns their anions to effect<br><br>
+                You have <h2>{{ format(player.anions.anti_anions, 0) }}<span v-if='FUNCTIONS.cations.effect().add.gt(0)'> + {{ format(FUNCTIONS.cations.effect().add, 2) }}</span></h2> anti-electrical anions, which make charged anion types <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().strDesc, 2) }}</h2>% stronger, and adds <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().add) }}</h2> bonus to their effects<br><br>
                 <button class='prestige_button anion' v-bind:class='{can: FUNCTIONS.anions.anti_anions.canReset()}' onclick='FUNCTIONS.anions.anti_anions.reset()'>Reset your anions to get 1 anti-electrical anion<br>Requires: {{ format(FUNCTIONS.anions.anti_anions.req(), 0) }} anions</button><br><br>
             </div>
         </div><div v-if='player.tabs[0] == 6'>

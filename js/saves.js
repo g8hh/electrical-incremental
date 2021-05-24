@@ -6,6 +6,7 @@ function ex(x){
     nx.layer = x.layer;
     return nx;
 }
+var next_type = true
 
 ExpantaNum.prototype.softcap = function (start,force,mode){
     var x = this.clone()
@@ -26,12 +27,13 @@ function calc(dt) {
     if (ele_gain.gte(FUNCTIONS.getElectricalCapacity())) player.electrons = FUNCTIONS.getElectricalCapacity()
     else player.electrons = ele_gain
 
-    checkUnlock()
     automatons()
 
     if (player.anions.unl) player.anions.charges = player.anions.charges.add(FUNCTIONS.anions.charges.gain().mul(dt))
+    if (UPGRADES.includesUpgrade('3-3')) player.anions.points = player.anions.points.add(FUNCTIONS.anions.gain().mul(dt/10))
 
     for (let x = 1; x <= player.eg_length; x++) player.electrical_generators[x].powers = player.electrical_generators[x].powers.add(FUNCTIONS.electrical_generators.getPowerGain(x).mul(dt))
+    for (let x = 1; x <= player.cations.gen_length; x++) player.cations.generators[x] = player.cations.generators[x].add(FUNCTIONS.cations.generators.getGain(x).mul(dt))
 }
 
 function automatons() {
@@ -45,12 +47,25 @@ function automatons() {
             else FUNCTIONS.electrical_generators.buy(x)
         }
     }
+    if (UPGRADES.includesUpgrade('3-5')) {
+        if (player.automatons.anti_anion) FUNCTIONS.anions.anti_anions.reset()
+        if (player.automatons.type_anion) {
+            var total = FUNCTIONS.anions.charges.getUnspentCharged()
+            var first = E(0), second = E(0);
+            if (next_type) {
+                first = total.div(2).floor()
+                second = total.sub(first).floor()
+            } else {
+                second = total.div(2).floor()
+                first = total.sub(second).floor()
+            }
+            next_type = !next_type
+            for (let x = 1; x <= 2; x++) if (player.anions.types[x] === undefined) player.anions.types[x] = E(0)
+            player.anions.types[1] = player.anions.types[1].add(first)
+            player.anions.types[2] = player.anions.types[2].add(second)
+        }
+    }
 }
-
-function checkUnlock() {
-    if (FUNCTIONS.anions.unl() && !player.anions.unl) player.anions.unl = true
-}
-
 const PLAYER_DATA = {
     electrons: E(0),
     electron_upgrades: {},
@@ -64,7 +79,15 @@ const PLAYER_DATA = {
         charges: E(0),
         types: {},
         respec_types: false,
+        ratio_types: '+1',
         anti_anions: E(0),
+    },
+    cations: {
+        unl: false,
+        points: E(0),
+        gen_length: 0,
+        gen_boosts: E(0),
+        generators: {},
     },
     upgrades: {
         unl: false,
@@ -99,7 +122,15 @@ function checkIfUndefined() {
     if (player.anions.charges === undefined) player.anions.charges = data.anions.charges
     if (player.anions.types === undefined) player.anions.types = data.anions.types
     if (player.anions.respec_types === undefined) player.anions.respec_types = data.anions.respec_types
+    if (player.anions.ratio_types === undefined) player.anions.ratio_types = data.anions.ratio_types
     if (player.anions.anti_anions === undefined) player.anions.anti_anions = data.anions.anti_anions
+
+    if (player.cations === undefined) player.cations = data.cations
+    if (player.cations.unl === undefined) player.cations.unl = data.cations.unl
+    if (player.cations.points === undefined) player.cations.points = data.cations.points
+    if (player.cations.gen_length === undefined) player.cations.gen_length = data.cations.gen_length
+    if (player.cations.gen_boosts === undefined) player.cations.gen_boosts = data.cations.gen_boosts
+    if (player.cations.generators === undefined) player.cations.generators = data.cations.generators
 
     if (player.upgrades === undefined) player.upgrades = data.upgrades
     if (player.upgrades.unl === undefined) player.upgrades.unl = data.upgrades.unl
@@ -121,6 +152,10 @@ function convertToExpantaNum() {
     player.anions.charges = ex(player.anions.charges)
     player.anions.anti_anions = ex(player.anions.anti_anions)
     for (let x = 1; x <= FUNCTIONS.anions.types.cols; x++) if (player.anions.types[x] !== undefined) player.anions.types[x] = ex(player.anions.types[x])
+
+    player.cations.points = ex(player.cations.points)
+    player.cations.gen_boosts = ex(player.cations.gen_boosts)
+    for (let x = 1; x <= player.cations.gen_length; x++) if (player.cations.generators[x] !== undefined) player.cations.generators[x] = ex(player.cations.generators[x])
 }
 
 function save(){

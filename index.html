@@ -67,7 +67,7 @@
             <button onclick="exporty()">Export</button>
             <button onclick="importy()">Import</button><br><br>
             "Electrical Incremental" - made by MrRedShark77<br>
-            Game Version - v1.0.2
+            Game Version - v1.1
         </div><div v-if='player.tabs[0] == 3'>
             You need to unlock more automatons!<br><br>
             <div class="main1">
@@ -84,7 +84,7 @@
                 <span v-if='UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc'>Currently: {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc() }}<br></span>
                 <span v-if='!UPGRADES.includesUpgrade(player.upg_choosed)'>Cost: {{ format(UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].cost(), 0) }} {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r].price }}</span>
             </div>
-            <div v-for='r in UPGRADES.rows'>
+            <div v-for='r in UPGRADES.rows' v-if='UPGRADES[r].unl()'>
                 <div class='main1'>
                     <h2>{{ UPGRADES[r].title }}</h2><br><br>
                     <div class='table_center'>
@@ -97,9 +97,9 @@
             </div>
         </div><div v-if='player.tabs[0] == 5'>
             <div class='main_anion'>
-                You have <h2>{{ format(player.anions.points, 0) }}</h2> anions, which generates <h2>{{ format(FUNCTIONS.anions.effect(), 1) }}</h2> anion charges per second
+                You have <h2>{{ format(player.anions.points, 0) }}</h2> anions, which generates <h2>{{ format(FUNCTIONS.anions.effect(), 1) }}</h2> anion charges per second<br><br>
+                <button class='prestige_button anion' v-bind:class='{can: FUNCTIONS.anions.canReset()}' onclick='FUNCTIONS.anions.reset()'>Reset previous electron features for +<b>{{ format(FUNCTIONS.anions.gain(), 0) }}</b> anions</button><br><br>
             </div><br>
-            <button class='prestige_button anion' v-bind:class='{can: FUNCTIONS.anions.canReset()}' onclick='FUNCTIONS.anions.reset()'>Reset previous electron features for +<b>{{ format(FUNCTIONS.anions.gain(), 0) }}</b> anions</button><br><br>
             <div class='main_anion'>
                 You have <h2>{{ format(player.anions.charges, 1) }}</h2> anion charges, which are adding <h2>{{ format(FUNCTIONS.anions.charges.getCharged(), 0) }}</h2> charged anions<br>
                 (+{{ format(FUNCTIONS.anions.charges.gain(), 1) }}/s)<br>
@@ -107,7 +107,8 @@
             </div><br>
             <div class='main_anion'>
                 <h2>Types of Charged Anions</h2><br><br>
-                <button onclick='player.anions.respec_types = !player.anions.respec_types'>Respec all spent charged anions: {{ player.anions.respec_types?'ON':'OFF' }}</button><br><br>
+                <button onclick='player.anions.respec_types = !player.anions.respec_types'>Respec all spent charged anions: {{ player.anions.respec_types?'ON':'OFF' }}</button><br>
+                <div v-if='UPGRADES.includesUpgrade("3-2")'>Ratio [{{ player.anions.ratio_types }}] <button v-for='x in FUNCTIONS.anions.types.ratio.length' v-on:click='FUNCTIONS.anions.types.changeRatio(x-1)'>{{ FUNCTIONS.anions.types.ratio[x-1] }}</button></div><br>
                 <div class='table_center'>
                     <div v-for='x in FUNCTIONS.anions.types.cols' class="anion_types">
                         <b>{{ format(FUNCTIONS.anions.types.have(x), 0) }} {{ FUNCTIONS.anions.types[x].title }}</b><br>
@@ -119,9 +120,26 @@
                 <br>
             </div><br>
             <div class='main_anion'>
-                You have <h2>{{ format(player.anions.anti_anions, 0) }}</h2> anti-electrical anions, which which makes charged anions types is <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().strDesc, 2) }}</h2>% stronger, and adds <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().add) }}</h2> bouns their anions to effect<br><br>
+                You have <h2>{{ format(player.anions.anti_anions, 0) }}<span v-if='FUNCTIONS.cations.effect().add.gt(0)'> + {{ format(FUNCTIONS.cations.effect().add, 2) }}</span></h2> anti-electrical anions, which which makes charged anions types is <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().strDesc, 2) }}</h2>% stronger, and adds <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().add) }}</h2> bouns their anions to effect<br><br>
                 <button class='prestige_button anion' v-bind:class='{can: FUNCTIONS.anions.anti_anions.canReset()}' onclick='FUNCTIONS.anions.anti_anions.reset()'>Reset your anions to get 1 anti-electrical anion<br>Requires: {{ format(FUNCTIONS.anions.anti_anions.req(), 0) }} anions</button><br><br>
             </div>
+        </div><div v-if='player.tabs[0] == 6'>
+            <div class='main_cation'>
+                You have <h2>{{ format(player.cations.points, 0) }}</h2> cations, which boosts anions gain by <h2>{{ format(FUNCTIONS.cations.effect().mult, 2) }}</h2>x, and add <h2>{{ format(FUNCTIONS.cations.effect().add, 2) }}</h2> free anti-electrical anions<br><br>
+                <button class='prestige_button cation' v-bind:class='{can: FUNCTIONS.cations.canReset()}' onclick='FUNCTIONS.cations.reset()'>Reset all previous features for +<b>{{ format(FUNCTIONS.cations.gain(), 0) }}</b> cations</button><br><br>
+            </div><br>
+            <div class='main_cation'>
+                <h2>Cation Generators</h2><br><br>
+                <button class='prestige_button cation' v-bind:class='{can: FUNCTIONS.cations.generators.canBuyGen()}' onclick='FUNCTIONS.cations.generators.buyGen()'><span v-if='5 > player.cations.gen_length'>Get new generators</span><span v-if='5 == player.cations.gen_length'>Generator Boosters ({{ format(player.cations.gen_boosts, 0) }})<br>Boost types of cations gain by {{ format(FUNCTIONS.cations.generators.getBoostEffect(), 1) }}x</span><br>Cost: {{ format(FUNCTIONS.cations.generators.getCost(), 0) }} cations</button><br><br>
+                <div class='table_center'>
+                    <div class='electrical_generator cation_generator' v-for='x in player.cations.gen_length'>
+                        You have <b>{{ format(FUNCTIONS.cations.generators.have(x), 1) }}</b> (+{{ format(FUNCTIONS.cations.generators.getGain(x), 1) }}/s) <b>{{ FUNCTIONS.cations.generators.getType(x) }} Cations</b>, which {{ FUNCTIONS.cations.generators[x].desc() }}<br>
+                        And boosts this cations gain by {{ format(FUNCTIONS.cations.generators.getGainEffect(x).owner, 2) }}x
+                        <span v-if='player.cations.gen_length > x || player.cations.gen_length == 5'><br>More, {{ FUNCTIONS.cations.generators.getType(x+1) }} Cations boost that cations gain by {{ format(FUNCTIONS.cations.generators.getGainEffect(x).next, 2) }}x</span>
+                    </div>
+                </div>
+                <br>
+            </div><br>
         </div>
         <div style='display: none'>{{ player.time }}</div>
     </div>

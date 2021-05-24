@@ -61,6 +61,13 @@ h2 {
     background-color: #e43b35;
 }
 
+.tab_button.cation_tab {
+    background-color: #5de23c;
+}
+.tab_button.cation_tab:hover {
+    background-color: #4cd829;
+}
+
 .table_center {
     display: flex;
     justify-content: center;
@@ -75,6 +82,11 @@ h2 {
 .main_anion {
     width: 100%;
     background-color: #e43b35;
+}
+
+.main_cation {
+    width: 100%;
+    background-color: #4cd829;
 }
 
 .upgrade {
@@ -136,8 +148,13 @@ h2 {
 }
 
 .prestige_button.anion.can {
-    background-color: #ff5953;
     cursor: pointer;
+    background-color: #ff5953;
+}
+
+.prestige_button.cation.can {
+    cursor: pointer;
+    background-color: #5de23c;
 }
 
 .anion_types {
@@ -179,5 +196,12 @@ h2 {
     background-color: #77f;
     border-radius: 20px;
     margin: 3px;
+    padding: 5px;
+}
+
+.electrical_generator.cation_generator {
+    width: 500px;
+    height: 100px;
+    background-color: #5de23c;
     padding: 5px;
 }

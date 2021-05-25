@@ -8,6 +8,7 @@ function loadVue() {
 			FUNCTIONS,
 			BUYABLES,
 			UPGRADES,
+			CHALLENGES,
 			AUTOS,
 			TABS,
             format,

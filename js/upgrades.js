@@ -27,7 +27,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 11,
+        cols: 12,
         1: {
             unl() { return true },
             desc() { return `Multiply electrical generator’s effects based on the sum of levels on these generators.` },
@@ -123,6 +123,16 @@ const UPGRADES = {
             unl() { return player.cations.unl },
             desc() { return `Raise effects from electrical generators by ^1.15` },
             cost() { return E('e420') },
+        },
+        12: {
+            unl() { return CHALLENGES.cation.completed(1) },
+            desc() { return `Electrical capacity boosts electron gain at a reduced rate.` },
+            cost() { return E('e1420') },
+            effect() {
+                let eff = FUNCTIONS.getElectricalCapacity().add(1).log10().add(1).pow(10)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x' },
         },
     },
     2: {
@@ -233,7 +243,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 5,
+        cols: 6,
         1: {
             unl() { return true },
             desc() { return `You can gain 1000x more anions, but this gets weaker the further you go (minimum 10x, at 1e10 anions).` },
@@ -268,6 +278,11 @@ const UPGRADES = {
             unl() { return true },
             desc() { return `Unlock Auto-Anti-Anion & Auto-Type Anion.` },
             cost() { return E(500000) },
+        },
+        6: {
+            unl() { return true },
+            desc() { return `Unlock Cation Challenges.` },
+            cost() { return E(1e7) },
         },
     },
 }

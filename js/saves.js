@@ -88,6 +88,11 @@ const PLAYER_DATA = {
         gen_length: 0,
         gen_boosts: E(0),
         generators: {},
+        chals: {
+            unlocked: false,
+            active: 0,
+            completed: [],
+        },
     },
     upgrades: {
         unl: false,
@@ -131,6 +136,11 @@ function checkIfUndefined() {
     if (player.cations.gen_length === undefined) player.cations.gen_length = data.cations.gen_length
     if (player.cations.gen_boosts === undefined) player.cations.gen_boosts = data.cations.gen_boosts
     if (player.cations.generators === undefined) player.cations.generators = data.cations.generators
+
+    if (player.cations.chals === undefined) player.cations.chals = data.cations.chals
+    if (player.cations.chals.unlocked === undefined) player.cations.chals.unlocked = data.cations.chals.unlocked
+    if (player.cations.chals.active === undefined) player.cations.chals.active = data.cations.chals.active
+    if (player.cations.chals.completed === undefined) player.cations.chals.completed = data.cations.chals.completed
 
     if (player.upgrades === undefined) player.upgrades = data.upgrades
     if (player.upgrades.unl === undefined) player.upgrades.unl = data.upgrades.unl

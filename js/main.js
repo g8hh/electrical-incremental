@@ -15,7 +15,10 @@ const TABS = {
         {id: 'Cations', unl() { return FUNCTIONS.cations.unl() || player.cations.unl }, style: 'cation_tab'},
     ],
     2: {
-
+        'Cations': [
+            {id: 'Cation Generators', unl() { return true }, style: 'cation_tab'},
+            {id: 'Cation Challenges', unl() { return UPGRADES.includesUpgrade('3-6') }, style: 'cation_tab'},
+        ],
     },
 }
 
@@ -39,6 +42,7 @@ const FUNCTIONS = {
         if (player.eg_length > 0) gain = gain.mul(this.electrical_generators.getEffect(1))
         if (player.cations.gen_length > 0) gain = gain.mul(FUNCTIONS.cations.generators[1].effect())
         if (UPGRADES.includesUpgrade('1-6')) gain = gain.mul(UPGRADES[1][6].effect().electrons)
+        if (UPGRADES.includesUpgrade('1-12')) gain = gain.mul(UPGRADES[1][12].effect())
         if (UPGRADES.includesUpgrade('1-4')) gain = gain.pow(1.15)
         return gain
     },
@@ -60,6 +64,7 @@ const FUNCTIONS = {
         getEffect(x) {
             let eff = player.electrical_generators[x].powers.add(1).pow(E(0.5).pow(x**(1/3)))
             if ((FUNCTIONS.anions.types.have(2).gte(1) || player.cations.unl) && x > 1) eff = eff.mul(FUNCTIONS.anions.types[2].effect().mult)
+            if (player.cations.gen_length > 1) eff = eff.mul(FUNCTIONS.cations.generators[2].effect())
             if (UPGRADES.includesUpgrade('1-1')) eff = eff.mul(UPGRADES[1][1].effect())
             if (UPGRADES.includesUpgrade('1-11')) eff = eff.pow(1.15)
             return eff
@@ -232,10 +237,15 @@ const FUNCTIONS = {
 
             return gain.floor()
         },
-        canReset() { return this.gain().gte(1) },
+        canReset() { return CHALLENGES.cation.isIn(0)?this.gain().gte(1):CHALLENGES.cation.canComplete() },
         reset() {
             if (this.canReset()) {
-                player.cations.points = player.cations.points.add(this.gain())
+                if (CHALLENGES.cation.isIn(0)) player.cations.points = player.cations.points.add(this.gain())
+                else {
+                    if (!player.cations.chals.completed.includes(player.cations.chals.active)) player.cations.chals.completed.push(player.cations.chals.active)
+                    CHALLENGES.cation.exitChal()
+                    return
+                }
                 if (!player.cations.unl) player.cations.unl = true
                 this.doReset()
             }
@@ -243,15 +253,18 @@ const FUNCTIONS = {
         doReset(msg) {
             FUNCTIONS.anions.anti_anions.doReset()
             player.anions.anti_anions = E(0)
-            if (!UPGRADES.includesUpgrade('3-4')) player.upgrades.buyed[2] = []
+            if (!UPGRADES.includesUpgrade('3-4') || msg == 'cation_chal') player.upgrades.buyed[2] = []
+            if (msg == 'cation_chal') for (let x = 1; x <= 5; x++) if (player.cations.generators[x] !== undefined) player.cations.generators[x] = E(0)
             FUNCTIONS.anions.doReset()
         },
         effect(x=player.cations.points) {
             let eff = {}
 
-            eff.mult = x.mul(2).add(1).pow(3/4)
+            eff.mult = E(1)
+            if (CHALLENGES.cation.isIn(0)) eff.mult = x.mul(2).add(1).pow(3/4)
 
-            eff.add = x.add(1).pow(1/3).sub(1).softcap(10,5,1)
+            eff.add = E(0)
+            if (CHALLENGES.cation.isIn(0)) eff.add = x.add(1).pow(1/3).sub(1).softcap(10,5,1).softcap(50,1/5,0)
 
             return eff
         },
@@ -388,7 +401,7 @@ const BUYABLES = {
         },
         2: {
             id: 2,
-            unl() { return true },
+            unl() { return !CHALLENGES.cation.isIn(1) },
             title: 'More Electrons',
             desc() { return 'Multiple electrons gain by '+format(this.effect().base, 1)+'x' },
             cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(2).pow(x.pow(1.5).mul(UPGRADES.includesUpgrade('2-1')?0.5:1)).mul(10) },
@@ -399,7 +412,7 @@ const BUYABLES = {
 
                 let eff = {}
                 eff.base = E(2)
-                if (BUYABLES.electrons.getLevel(5).gte(1)) eff.base = eff.base.add(BUYABLES.electrons[5].effect())
+                if (BUYABLES.electrons.getLevel(5).gte(1)) eff.base = eff.base.add(BUYABLES.electrons[5].effect().add)
                 if (UPGRADES.includesUpgrade('1-2')) eff.base = eff.base.mul(UPGRADES[1][2].effect())
 
                 eff.mult = E(eff.base).pow(lvl)
@@ -438,15 +451,21 @@ const BUYABLES = {
             id: 5,
             unl() { return UPGRADES.includesUpgrade('1-5') },
             title: 'Stronger Electrons',
-            desc() { return 'Increase base from electron buyable “More Electrons” by 0.1' },
+            desc() { return 'Increase base from electron buyable “More Electrons” by '+format(this.effect().base, 2) },
             cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(2.5).pow(x.pow(2).mul(UPGRADES.includesUpgrade('2-8')?0.5:1)).mul(1e45) },
             bulk() { return player.electrons.gte(1e45)?player.electrons.div(1e45).max(1).logBase(2.5).div(UPGRADES.includesUpgrade('2-8')?0.5:1).max(1).root(2).add(1).floor():E(0) },
             effect(x = BUYABLES.electrons.getLevel(this.id)) {
+                let eff = {}
                 var lvl = x
                 if (player.cations.gen_length > 2) lvl = lvl.add(FUNCTIONS.cations.generators[3].effect())
-                return lvl.mul(0.1)
+
+                eff.base = E(0.1)
+                if (CHALLENGES.cation.completed(1)) eff.base = eff.base.mul(CHALLENGES.cation[1].effect())
+
+                eff.add = lvl.mul(eff.base)
+                return eff
             },
-            effDesc(x = this.effect()) { return '+'+format(x, 1) }
+            effDesc(x = this.effect()) { return '+'+format(x.add, 2) }
         },
     },
 

@@ -166,7 +166,7 @@ const UPGRADES = {
         },
         5: {
             unl() { return true },
-            desc() { return `Electron Buyables & Generators are no longer buys with electrons, and unspent anions boost electron’s buyable “More Electrical Powers” effect.` },
+            desc() { return `Electron Buyables & Generators doesn't spend electrons, and unspent anions boost electron’s buyable “More Electrical Powers” effect.` },
             cost() { return E(1500) },
             effect() {
                 let eff = player.anions.points.add(1).pow(1/2)

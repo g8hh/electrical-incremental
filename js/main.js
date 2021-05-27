@@ -23,11 +23,14 @@ const TABS = {
 }
 
 const AUTOS = {
-    cols: 4,
-    1: {id: 'elec_buyable', title: 'Auto-Electron Buyables', unl() { return UPGRADES.includesUpgrade('2-2') }},
-    2: {id: 'elec_gens', title: 'Auto-Electron Generators', unl() { return UPGRADES.includesUpgrade('2-2') }},
+    1: {id: 'elec_buyable', title: 'Auto-Electron Buyables', unl() { return UPGRADES.includesUpgrade('2-2') || CHALLENGES.cation.isIn(3) }},
+    2: {id: 'elec_gens', title: 'Auto-Electron Generators', unl() { return UPGRADES.includesUpgrade('2-2') || CHALLENGES.cation.isIn(3) }},
     3: {id: 'anti_anion', title: 'Auto-Anti-Anion', unl() { return UPGRADES.includesUpgrade('3-5') }},
     4: {id: 'type_anion', title: 'Auto-Type Anion', unl() { return UPGRADES.includesUpgrade('3-5') }},
+    5: {id: 'upgrades', title: 'Auto-Upgrades', unl() { return UPGRADES.includesUpgrade('3-7') }, sub_autos: {
+        1: {id: 'upg_pre_anion', title: 'Pre-Anions', unl() { return true }},
+        2: {id: 'upg_anion', title: 'Anions', unl() { return true }},
+    }},
 }
 
 const FUNCTIONS = {
@@ -43,7 +46,9 @@ const FUNCTIONS = {
         if (player.cations.gen_length > 0) gain = gain.mul(FUNCTIONS.cations.generators[1].effect())
         if (UPGRADES.includesUpgrade('1-6')) gain = gain.mul(UPGRADES[1][6].effect().electrons)
         if (UPGRADES.includesUpgrade('1-12')) gain = gain.mul(UPGRADES[1][12].effect())
+        if (UPGRADES.includesUpgrade('3-8')) gain = gain.mul(UPGRADES[3][8].effect())
         if (UPGRADES.includesUpgrade('1-4')) gain = gain.pow(1.15)
+        if (CHALLENGES.cation.isIn(4)) gain = gain.pow(0.25)
         return gain
     },
     getElectricalCapacity() {
@@ -57,6 +62,8 @@ const FUNCTIONS = {
             if (x < player.eg_length) gain = gain.mul(this.getEffect(x+1))
             if (BUYABLES.electrons.getLevel(4).gte(1)) gain = gain.mul(BUYABLES.electrons[4].effect().mult)
             if (player.cations.gen_length > 1) gain = gain.mul(FUNCTIONS.cations.generators[2].effect())
+            if (UPGRADES.includesUpgrade('2-12') && x == 5) gain = gain.pow(UPGRADES[2][12].effect())
+            if (CHALLENGES.cation.isIn(4)) gain = gain.pow(0.25)
             return gain
         },
         getCost(x, lvl = player.electrical_generators[x].lvl) { return E(1.5+0.25*(x-1)).pow(lvl).mul(ELEC_GEN_COST[x-1]) },
@@ -89,7 +96,7 @@ const FUNCTIONS = {
         unl() { return player.electrons.gte(1e10) },
         gain() {
             let gain = player.electrons.div(1e10)
-            if (gain.lt(1)) return E(0)
+            if (gain.lt(1) || CHALLENGES.cation.isIn(3)) return E(0)
             if (UPGRADES.includesUpgrade('2-11')) gain = gain.pow(0.02).add(1)
             else gain = gain.logBase(5).add(1)
 
@@ -100,6 +107,7 @@ const FUNCTIONS = {
             if (UPGRADES.includesUpgrade('2-10')) gain = gain.mul(UPGRADES[2][10].effect())
             if (UPGRADES.includesUpgrade('3-1')) gain = gain.mul(UPGRADES[3][1].effect())
             if (UPGRADES.includesUpgrade('2-9')) gain = gain.pow(1.5)
+            if (CHALLENGES.cation.isIn(4)) gain = gain.pow(0.25)
             return gain.floor()
         },
         canReset() { return this.gain().gte(1) },
@@ -142,6 +150,16 @@ const FUNCTIONS = {
                 player.anions.charges = E(0)
                 player.anions.types = {}
             },
+            getBulk() {
+                let bulk = player.anions.points.div(3000)
+                if (UPGRADES.includesUpgrade('1-9')) bulk = bulk.mul(UPGRADES[1][9].effect())
+                return bulk.gte(3000)?bulk.max(1).logBase(1.5).div(UPGRADES.includesUpgrade('1-8')?2/3:1).max(1).root(UPGRADES.includesUpgrade('3-3')?1.5:2).add(1).floor():E(0)
+            },
+            bulk() {
+                if (this.canReset()) {
+                    player.anions.anti_anions = this.getBulk()
+                }
+            },
             effect() {
                 var x = player.anions.anti_anions.add(player.cations.unl?FUNCTIONS.cations.effect().add:0)
                 if (player.cations.gen_length > 3) x = x.mul(FUNCTIONS.cations.generators[4].effect())
@@ -159,10 +177,11 @@ const FUNCTIONS = {
             gain() {
                 let gain = FUNCTIONS.anions.effect()
                 if (UPGRADES.includesUpgrade('2-3')) gain = gain.mul(UPGRADES[2][3].effect())
+                if (CHALLENGES.cation.isIn(4)) gain = gain.pow(0.25)
                 return gain
             },
             getCharged() {
-                let gain = player.anions.charges.max(1).log10()
+                let gain = player.anions.charges.max(1).logBase(UPGRADES.includesUpgrade('3-7')?5:10)
                 return gain.floor()
             },
             getUnspentCharged() {
@@ -284,6 +303,7 @@ const FUNCTIONS = {
                 if (x < player.cations.gen_length || player.cations.gen_length == 5) gain = gain.mul(this.getGainEffect(x).next)
                 if (UPGRADES.includesUpgrade('1-10')) gain = gain.mul(UPGRADES[1][10].effect())
                 if (player.cations.gen_boosts.gte(1)) gain = gain.mul(this.getBoostEffect())
+                if (CHALLENGES.cation.completed(3)) gain = gain.mul(CHALLENGES.cation[3].effect())
                 return gain
             },
             getCost() { return (player.cations.gen_length < 5)?this.costs[player.cations.gen_length]:E(2).pow(player.cations.gen_boosts.pow(1.5)).mul(5e6) },
@@ -299,7 +319,12 @@ const FUNCTIONS = {
                     }
                 }
             },
-            getBoostEffect(x=player.cations.gen_boosts) { return E(2).pow(x) },
+            getBoostEffect(x=player.cations.gen_boosts) {
+                let base = E(2)
+                if (UPGRADES.includesUpgrade('3-8')) base = base.mul(1.5)
+
+                return base.pow(x)
+            },
             1: {
                 id: 1,
                 desc(eff = this.effect()) { return `boosts electrons gain by ${format(eff, 2)}x` },
@@ -404,8 +429,8 @@ const BUYABLES = {
             unl() { return !CHALLENGES.cation.isIn(1) },
             title: 'More Electrons',
             desc() { return 'Multiple electrons gain by '+format(this.effect().base, 1)+'x' },
-            cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(2).pow(x.pow(1.5).mul(UPGRADES.includesUpgrade('2-1')?0.5:1)).mul(10) },
-            bulk() { return player.electrons.gte(10)?player.electrons.div(10).max(1).logBase(2).div(UPGRADES.includesUpgrade('2-1')?0.5:1).max(1).root(1.5).add(1).floor():E(0) },
+            cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(2).pow(x.pow(1.5).pow(CHALLENGES.cation.isIn(2)?2:1).mul(CHALLENGES.cation.completed(2)?0.85:1).mul(UPGRADES.includesUpgrade('2-1')?0.5:1)).mul(10) },
+            bulk() { return player.electrons.gte(10)?player.electrons.div(10).max(1).logBase(2).div(UPGRADES.includesUpgrade('2-1')?0.5:1).div(CHALLENGES.cation.completed(2)?0.85:1).max(1).root(1.5).root(CHALLENGES.cation.isIn(2)?2:1).add(1).floor():E(0) },
             effect(x = BUYABLES.electrons.getLevel(this.id)) {
                 var lvl = x
                 if (player.cations.gen_length > 2) lvl = lvl.add(FUNCTIONS.cations.generators[3].effect())
@@ -432,8 +457,8 @@ const BUYABLES = {
             unl() { return player.eg_length > 1 },
             title: 'More Electrical Powers',
             desc() { return 'Increase electrical powers from electrical generators multiplier by '+format(this.effect().base, 1)+', raise this effect by 1.5' },
-            cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(3).pow(x.mul(UPGRADES.includesUpgrade('1-5')?0.85:1)).mul(1000) },
-            bulk() { return player.electrons.gte(1000)?player.electrons.div(1000).max(1).logBase(3).div(UPGRADES.includesUpgrade('1-5')?0.85:1).add(1).floor():E(0) },
+            cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(3).pow(x.mul(UPGRADES.includesUpgrade('1-5')?0.85:1).mul(CHALLENGES.cation.completed(2)?0.85:1).mul(CHALLENGES.cation.isIn(2)?2:1)).mul(1000) },
+            bulk() { return player.electrons.gte(1000)?player.electrons.div(1000).max(1).logBase(3).div(UPGRADES.includesUpgrade('1-5')?0.85:1).div(CHALLENGES.cation.completed(2)?0.85:1).div(CHALLENGES.cation.isIn(2)?2:1).add(1).floor():E(0) },
             effect(x = BUYABLES.electrons.getLevel(this.id)) {
                 var lvl = x
                 if (player.cations.gen_length > 2) lvl = lvl.add(FUNCTIONS.cations.generators[3].effect())
@@ -452,8 +477,8 @@ const BUYABLES = {
             unl() { return UPGRADES.includesUpgrade('1-5') },
             title: 'Stronger Electrons',
             desc() { return 'Increase base from electron buyable “More Electrons” by '+format(this.effect().base, 2) },
-            cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(2.5).pow(x.pow(2).mul(UPGRADES.includesUpgrade('2-8')?0.5:1)).mul(1e45) },
-            bulk() { return player.electrons.gte(1e45)?player.electrons.div(1e45).max(1).logBase(2.5).div(UPGRADES.includesUpgrade('2-8')?0.5:1).max(1).root(2).add(1).floor():E(0) },
+            cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(2.5).pow(x.pow(2).pow(CHALLENGES.cation.isIn(2)?2:1).mul(CHALLENGES.cation.completed(2)?0.85:1).mul(UPGRADES.includesUpgrade('2-8')?0.5:1)).mul(1e45) },
+            bulk() { return player.electrons.gte(1e45)?player.electrons.div(1e45).max(1).logBase(2.5).div(UPGRADES.includesUpgrade('2-8')?0.5:1).div(CHALLENGES.cation.completed(2)?0.85:1).max(1).root(2).root(CHALLENGES.cation.isIn(2)?2:1).add(1).floor():E(0) },
             effect(x = BUYABLES.electrons.getLevel(this.id)) {
                 let eff = {}
                 var lvl = x

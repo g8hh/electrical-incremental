@@ -37,19 +37,19 @@ function calc(dt) {
 }
 
 function automatons() {
-    if (UPGRADES.includesUpgrade('2-2')) {
+    if (UPGRADES.includesUpgrade('2-2') || CHALLENGES.cation.isIn(3)) {
         if (player.automatons.elec_buyable) for (let x = 1; x <= BUYABLES.electrons.cols; x++) {
-            if (UPGRADES.includesUpgrade('2-8') && x != 3) BUYABLES.electrons.bulk(x)
+            if ((UPGRADES.includesUpgrade('2-8') || CHALLENGES.cation.isIn(3)) && x != 3) BUYABLES.electrons.bulk(x)
             else BUYABLES.electrons.buy(x)
         }
         if (player.automatons.elec_gens) for (let x = 1; x <= player.eg_length; x++) {
-            if (UPGRADES.includesUpgrade('2-8')) FUNCTIONS.electrical_generators.bulk(x)
+            if (UPGRADES.includesUpgrade('2-8') || CHALLENGES.cation.isIn(3)) FUNCTIONS.electrical_generators.bulk(x)
             else FUNCTIONS.electrical_generators.buy(x)
         }
     }
     if (UPGRADES.includesUpgrade('3-5')) {
-        if (player.automatons.anti_anion) FUNCTIONS.anions.anti_anions.reset()
-        if (player.automatons.type_anion) {
+        if (player.automatons.anti_anion) UPGRADES.includesUpgrade('2-12')?FUNCTIONS.anions.anti_anions.bulk():FUNCTIONS.anions.anti_anions.reset()
+        if (player.automatons.type_anion && FUNCTIONS.anions.charges.getUnspentCharged().gte(1)) {
             var total = FUNCTIONS.anions.charges.getUnspentCharged()
             var first = E(0), second = E(0);
             if (next_type) {
@@ -63,6 +63,11 @@ function automatons() {
             for (let x = 1; x <= 2; x++) if (player.anions.types[x] === undefined) player.anions.types[x] = E(0)
             player.anions.types[1] = player.anions.types[1].add(first)
             player.anions.types[2] = player.anions.types[2].add(second)
+        }
+    }
+    if (UPGRADES.includesUpgrade('3-7')) for (let u = 1; u <= UPGRADES.rows; u++) {
+        if (AUTOS[5].sub_autos[u] !== undefined) if (AUTOS[5].sub_autos[u].unl() && player.automatons[AUTOS[5].sub_autos[u].id]) for (let c = 1; c <= UPGRADES[u].cols; c++) {
+            if (UPGRADES[u][c].unl() && UPGRADES[u].can(c)) UPGRADES[u].buy(c)
         }
     }
 }
@@ -147,7 +152,10 @@ function checkIfUndefined() {
     if (player.upgrades.buyed === undefined) player.upgrades.buyed = data.upgrades.buyed
 
     if (player.automatons === undefined) player.automatons = data.automatons
-    for (let x = 1; x <= AUTOS.cols; x++) if (player.automatons[AUTOS[x].id] === undefined) player.automatons[AUTOS[x].id] = false
+    for (let x = 1; x <= Object.keys(AUTOS).length; x++) {
+        if (player.automatons[AUTOS[x].id] === undefined) player.automatons[AUTOS[x].id] = false
+        if (AUTOS[x].sub_autos !== undefined) for (let sx = 1; sx <= Object.keys(AUTOS[x].sub_autos).length; sx++) if (player.automatons[AUTOS[x].sub_autos[sx].id] === undefined) player.automatons[AUTOS[x].sub_autos[sx].id] = false
+    }
 }
 
 function convertToExpantaNum() {

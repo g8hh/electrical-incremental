@@ -73,9 +73,12 @@
             You need to unlock more automatons!<br><br>
             <div class="main1">
                 <br><div class='table_center'>
-                    <div v-for='x in AUTOS.cols' v-if='AUTOS[x].unl()' class="automaton">
-                        <div style='height: 100px;'><b>{{ AUTOS[x].title }}</b></div>
-                        Enabled: <input type="checkbox" v-model="player.automatons[AUTOS[x].id]">
+                    <div v-for='x in Object.keys(AUTOS).length' v-if='AUTOS[x].unl()' class="automaton">
+                        <div style='height: 60px;'><b>{{ AUTOS[x].title }}</b></div>
+                        <span v-if='!AUTOS[x].sub_autos'>Enabled: <input type="checkbox" v-model="player.automatons[AUTOS[x].id]"></span>
+                        <div v-if='AUTOS[x].sub_autos'>
+                            <div v-for='sx in Object.keys(AUTOS[x].sub_autos).length' v-if='AUTOS[x].sub_autos[sx].unl()'>{{ AUTOS[x].sub_autos[sx].title }}: <input type="checkbox" v-model="player.automatons[AUTOS[x].sub_autos[sx].id]"></div>
+                        </div>
                     </div>
                 </div><br>
             </div>

@@ -148,7 +148,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 11,
+        cols: 12,
         1: {
             unl() { return true },
             desc() { return `Make electron buyable “More Electrons” is 50% cheaper.` },
@@ -229,6 +229,16 @@ const UPGRADES = {
             desc() { return `Anion gain formula is better [log5(x)+1 → x^0.02+1]` },
             cost() { return E(1e24) },
         },
+        12: {
+            unl() { return player.cations.unl },
+            desc() { return `You can bulk anti-electrical anions, and quinary cations boost powers from 5th electrical generator gain.` },
+            cost() { return E(1e120) },
+            effect() {
+                let eff = FUNCTIONS.cations.generators.have(5).add(1).log10().add(1).log10().add(1)
+                return eff
+            },
+            effDesc(x=this.effect()) { return '^'+format(x, 2) },
+        },
     },
     3: {
         unl() { return player.cations.unl },
@@ -243,7 +253,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 6,
+        cols: 8,
         1: {
             unl() { return true },
             desc() { return `You can gain 1000x more anions, but this gets weaker the further you go (minimum 10x, at 1e10 anions).` },
@@ -283,6 +293,21 @@ const UPGRADES = {
             unl() { return true },
             desc() { return `Unlock Cation Challenges.` },
             cost() { return E(1e7) },
+        },
+        7: {
+            unl() { return true },
+            desc() { return `Charged Anions gain formula is better [log10(x) → log5(x)]. Unlock Auto-Upgrades (includes Pre-Anions & Anions)` },
+            cost() { return E(2.5e8) },
+        },
+        8: {
+            unl() { return true },
+            desc() { return `Generator Boosters in Cations are 50% stronger, and electrons gain is increased by 2.5% for every OoM of electrons.` },
+            cost() { return E(1e11) },
+            effect() {
+                let eff = E(1.025).pow(player.electrons.add(1).log10())
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x' },
         },
     },
 }

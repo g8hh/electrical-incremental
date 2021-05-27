@@ -205,3 +205,19 @@ h2 {
     background-color: #5de23c;
     padding: 5px;
 }
+
+.cation_chal {
+    font-size: 12px;
+    width: 200px;
+    height: 250px;
+    background-color: #5de23c;
+    padding: 5px;
+    border-radius: 20px;
+    margin: 5px;
+}
+
+.chal_button {
+    width: 150px;
+    height: 30px;
+    border-radius: 15px;
+}

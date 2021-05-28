@@ -68,6 +68,14 @@ h2 {
     background-color: #4cd829;
 }
 
+.tab_button.plasma_tab {
+    background-color: #8400c2;
+}
+.tab_button.plasma_tab:hover {
+    background: #910bcf;
+    background: linear-gradient(45deg, #910bcf 0%, #910bcf 20%, #c954ff 49%, #c954ff 51%, #910bcf 80%, #910bcf 100%);
+}
+
 .table_center {
     display: flex;
     justify-content: center;
@@ -89,6 +97,11 @@ h2 {
     background-color: #4cd829;
 }
 
+.main_plasma {
+    width: 100%;
+    background-color: #8400c2;
+}
+
 .upgrade {
     width: 150px;
     height: 150px;
@@ -104,6 +117,11 @@ h2 {
 .gen_button.can,
 .upgrade_mini.can {
     background-color: #66f;
+    cursor: pointer;
+}
+
+.upgrade.plasma.can {
+    background-color: #9c13db;
     cursor: pointer;
 }
 
@@ -220,4 +238,99 @@ h2 {
     width: 150px;
     height: 30px;
     border-radius: 15px;
+}
+
+.invisible_plasma_box {
+    width: 90px;
+    height: 90px;
+}
+
+.plasma_button {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    transform: scale(1.25, 1.25);
+    background-color: #666;
+    border-color: white;
+    border-width: 0px;
+    font-size: 9px;
+    color: white;
+    transition-duration: 0.5s;
+    cursor: default;
+}
+.plasma_image {
+    width: 100%;
+    height: 100%;
+    background-size: 100% 100%;
+}
+.plasma_button.can {
+    background-color: #9c13db;
+    cursor: pointer;
+}
+.plasma_button.can:hover {
+    transform: scale(1.5, 1.5);
+}
+
+[tooltip] {
+	position: relative;
+	z-index: 2;
+	white-space: pre-wrap;
+}
+
+[tooltip]:before,
+[tooltip]:after {
+	visibility: hidden;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=0);
+	opacity: 0;
+	pointer-events: none;
+	white-space: pre-wrap;
+}
+
+[tooltip]:before {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-bottom: 5px;
+	margin-left: -80px;
+	padding: 7px;
+	width: 160px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background-color: #000;
+	background-color: hsla(0, 0%, 5%, 0.9);
+	color: #fff;
+	content: attr(tooltip);
+	text-align: center;
+	font-size: 14px;
+	line-height: 1.2;
+	transition-duration: 0.5s;
+	white-space: pre-wrap;
+}
+
+[tooltip]:after {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -5px;
+	width: 0;
+	border-top: 5px solid #000;
+	border-top: 5px solid hsla(0, 0%, 5%, 0.9);
+	border-right: 5px solid transparent;
+	border-left: 5px solid transparent;
+	content: " ";
+	font-size: 0;
+	line-height: 0;
+	transition-duration: 0.5s;
+	white-space: pre-wrap;
+}
+
+[tooltip]:hover:before,
+[tooltip]:hover:after {
+	visibility: visible;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
+	opacity: 1;
+	white-space: pre-wrap;
 }

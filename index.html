@@ -11,6 +11,7 @@
     <script src="js/main.js"></script>
     <script src="js/upgrades.js"></script>
     <script src="js/challenges.js"></script>
+    <script src="js/plasma.js"></script>
     <script src="js/v.js"></script>
 
     <title>Electrical Incremental</title>
@@ -68,7 +69,7 @@
             <button onclick="exporty()">Export</button>
             <button onclick="importy()">Import</button><br><br>
             "Electrical Incremental" - made by MrRedShark77<br>
-            Game Version - v1.1.1 - cation challenge update
+            Game Version - v1.2 beta 0.1
         </div><div v-if='player.tabs[0] == 3'>
             You need to unlock more automatons!<br><br>
             <div class="main1">
@@ -170,6 +171,41 @@
                             Reward: {{ CHALLENGES.cation[x].reward() }}
                         </div>
                     </div><br>
+                </div>
+            </div>
+        </div><div v-if='player.tabs[0] == 7'>
+            <div class='main_plasma'>
+                You have <h2>{{ format(player.plasma.particles, 6) }}</h2> plasma particles<br>
+                (+{{ format(PLASMA.getParticlesGain(), 6) }}/s)<br>
+            </div><br>
+            <div v-if='player.tabs[1] != 0'><button onclick="FUNCTIONS.chTabs(1, 0)">Back to Plasma Map</button><br><br></div><div class='main_plasma' v-if='player.tabs[1] == 0'>
+                <span v-if='player.plasma_choosed != 0'>{{ PLASMA.maps[player.plasma_choosed].tooltip() }}</span><br><br>
+                <div style="background: #8400c2; background: radial-gradient(circle, #b920ff 0%, #8400c2 25%, #8400c2 100%);">
+                    <div class='table_center' v-for='y in 9'>
+                        <div class='invisible_plasma_box' v-for='x in 9'>
+                            <div v-if='PLASMA.maps[y*10+x]?PLASMA.maps[y*10+x].unl():false'>
+                                <div v-if='PLASMA.maps[y*10+x].type == "text"'>
+                                    <span v-bind:style="{'font-size': PLASMA.maps[y*10+x].size+'px'}">{{ PLASMA.maps[y*10+x].text() }}</span>
+                                </div><div v-if='PLASMA.maps[y*10+x].type == "button"'>
+                                    <button class='plasma_button' v-on:mouseover="PLASMA.choosedPlasma(y*10+x)" v-on:mouseout="player.plasma_choosed = 0" v-bind:class="{can: y*10+x==55?PLASMA.canReset():true}" v-on:click="PLASMA.onClick(y*10+x)">
+                                        <span v-if='PLASMA.maps[y*10+x].text'>{{ PLASMA.maps[y*10+x].text() }}</span>
+                                        <div class="plasma_image" v-if='PLASMA.maps[y*10+x].image' v-bind:style="{'background-image': 'url('+PLASMA.maps[y*10+x].image+')'}"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><div v-if='player.tabs[1] == 1'>
+                <div class='main_plasma'>
+                    You have <h2>{{ format(player.plasma.resources.volume) }}</h2> m^3 of plasma, which boosts electrons and electrical powers from electrical generators gain by <h2>{{ format(PLASMA.resources.volume.effect().mult,2) }}</h2>x, and boosts plasma particles gain by <h2>{{ format(PLASMA.resources.volume.effect().part,2) }}</h2>x<br>
+                    (+{{ format(PLASMA.resources.volume.gain()) }}/s)<br><br>
+                    <button class='upgrade plasma' v-bind:class="{can: PLASMA.buyables.volume.canBuy()}" onclick="PLASMA.buyables.volume.buy()">
+                        Increase thier resources gain by 1x<br>
+                        Currently: {{ format(PLASMA.buyables.volume.effect(), 1) }}x<br>
+                        Level: {{ format(player.plasma.buyables.volume, 0) }}<br>
+                        Cost: {{ format(PLASMA.buyables.volume.cost(), 6) }} plasma particles
+                    </button><br><br>
                 </div>
             </div>
         </div>

@@ -13,7 +13,7 @@ const CHALLENGES = {
                 FUNCTIONS.cations.doReset('cation_chal')
             }
         },
-        canComplete(x=player.cations.chals.active) { return player.electrons.gte(this[x].goal()) },
+        canComplete(x=player.cations.chals.active) {return player.electrons.gte(this[x].goal()) },
         progress(x=player.cations.chals.active) {
             let f = player.electrons.max(1).log10().max(1).log10().div(this[x].goal().log10().log10()).max(0).min(100)
             return format(f.mul(100))+'%'
@@ -53,7 +53,7 @@ const CHALLENGES = {
             title: 'Weaker Resources',
             desc() { return `All pre-Cation resources are raised by 0.25` },
             goal() { return E(1e35) },
-            reward(eff = this.effect()) { return `Unlock Plasma (coming soon)` },
+            reward(eff = this.effect()) { return `Unlock Plasma` },
             effect() {
                 let eff = E(1)
                 return eff

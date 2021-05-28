@@ -11,6 +11,7 @@ function loadVue() {
 			CHALLENGES,
 			AUTOS,
 			TABS,
+			PLASMA,
             format,
         }
 	})

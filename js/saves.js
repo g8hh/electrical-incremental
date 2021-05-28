@@ -34,6 +34,11 @@ function calc(dt) {
 
     for (let x = 1; x <= player.eg_length; x++) player.electrical_generators[x].powers = player.electrical_generators[x].powers.add(FUNCTIONS.electrical_generators.getPowerGain(x).mul(dt))
     for (let x = 1; x <= player.cations.gen_length; x++) player.cations.generators[x] = player.cations.generators[x].add(FUNCTIONS.cations.generators.getGain(x).mul(dt))
+
+    if (player.plasma.unl) {
+        player.plasma.particles = player.plasma.particles.add(PLASMA.getParticlesGain().mul(dt))
+        player.plasma.resources.volume = player.plasma.resources.volume.add(PLASMA.resources.volume.gain().mul(dt))
+    }
 }
 
 function automatons() {
@@ -104,7 +109,16 @@ const PLAYER_DATA = {
         buyed: {},
     },
     upg_choosed: '',
+    plasma_choosed: 0,
     automatons: {},
+    plasma: {
+        unl: false,
+        points: E(0),
+        particles: E(0),
+        resources: {volume: E(0), mass: E(0), temp: E(0), charge: E(0)},
+        buyables: {volume: E(0), mass: E(0), temp: E(0), charge: E(0)},
+        volume_core: E(0),
+    },
 }
 
 function wipe() {
@@ -117,6 +131,7 @@ function loadPlayer(load) {
     convertToExpantaNum()
     player.tabs = PLAYER_DATA.tabs
     player.upg_choosed = PLAYER_DATA.upg_choosed
+    player.plasma_choosed = PLAYER_DATA.plasma_choosed
 }
 
 function checkIfUndefined() {
@@ -156,6 +171,16 @@ function checkIfUndefined() {
         if (player.automatons[AUTOS[x].id] === undefined) player.automatons[AUTOS[x].id] = false
         if (AUTOS[x].sub_autos !== undefined) for (let sx = 1; sx <= Object.keys(AUTOS[x].sub_autos).length; sx++) if (player.automatons[AUTOS[x].sub_autos[sx].id] === undefined) player.automatons[AUTOS[x].sub_autos[sx].id] = false
     }
+
+    if (player.plasma === undefined) player.plasma = data.plasma
+    if (player.plasma.unl === undefined) player.plasma.unl = data.plasma.unl
+    if (player.plasma.points === undefined) player.plasma.points = data.plasma.points
+    if (player.plasma.particles === undefined) player.plasma.particles = data.plasma.particles
+    if (player.plasma.resources === undefined) player.plasma.resources = data.plasma.resources
+    for (let x = 0; x < Object.keys(data.plasma.resources).length; x++) if (player.plasma.resources[Object.keys(data.plasma.resources)[x]] === undefined) player.plasma.resources[Object.keys(data.plasma.resources)[x]] = data.plasma.resources[Object.keys(data.plasma.resources)[x]]
+    if (player.plasma.buyables === undefined) player.plasma.buyables = data.plasma.buyables
+    for (let x = 0; x < Object.keys(data.plasma.buyables).length; x++) if (player.plasma.buyables[Object.keys(data.plasma.buyables)[x]] === undefined) player.plasma.buyables[Object.keys(data.plasma.buyables)[x]] = data.plasma.buyables[Object.keys(data.plasma.buyables)[x]]
+    if (player.plasma.volume_core === undefined) player.plasma.volume_core = data.plasma.volume_core
 }
 
 function convertToExpantaNum() {
@@ -174,6 +199,12 @@ function convertToExpantaNum() {
     player.cations.points = ex(player.cations.points)
     player.cations.gen_boosts = ex(player.cations.gen_boosts)
     for (let x = 1; x <= player.cations.gen_length; x++) if (player.cations.generators[x] !== undefined) player.cations.generators[x] = ex(player.cations.generators[x])
+
+    player.plasma.points = ex(player.plasma.points)
+    player.plasma.particles = ex(player.plasma.particles)
+    for (let x = 0; x < Object.keys(player.plasma.resources).length; x++) player.plasma.resources[Object.keys(player.plasma.resources)[x]] = ex(player.plasma.resources[Object.keys(player.plasma.resources)[x]])
+    for (let x = 0; x < Object.keys(player.plasma.buyables).length; x++) player.plasma.buyables[Object.keys(player.plasma.buyables)[x]] = ex(player.plasma.buyables[Object.keys(player.plasma.buyables)[x]])
+    player.plasma.volume_core = ex(player.plasma.volume_core)
 }
 
 function save(){

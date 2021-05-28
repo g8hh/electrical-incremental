@@ -13,6 +13,7 @@ const TABS = {
         {id: 'Upgrades', unl() { return player.upgrades.unl }, style: 'normal_tab'},
         {id: 'Anions', unl() { return FUNCTIONS.anions.unl() || player.anions.unl }, style: 'anion_tab'},
         {id: 'Cations', unl() { return FUNCTIONS.cations.unl() || player.cations.unl }, style: 'cation_tab'},
+        {id: 'Plasma', unl() { return player.plasma.unl || CHALLENGES.cation.completed(4) }, style: 'plasma_tab'},
     ],
     2: {
         'Cations': [
@@ -47,6 +48,7 @@ const FUNCTIONS = {
         if (UPGRADES.includesUpgrade('1-6')) gain = gain.mul(UPGRADES[1][6].effect().electrons)
         if (UPGRADES.includesUpgrade('1-12')) gain = gain.mul(UPGRADES[1][12].effect())
         if (UPGRADES.includesUpgrade('3-8')) gain = gain.mul(UPGRADES[3][8].effect())
+        if (player.plasma.points.gte(1)) gain = gain.mul(PLASMA.resources.volume.effect().mult)
         if (UPGRADES.includesUpgrade('1-4')) gain = gain.pow(1.15)
         if (CHALLENGES.cation.isIn(4)) gain = gain.pow(0.25)
         return gain
@@ -62,6 +64,7 @@ const FUNCTIONS = {
             if (x < player.eg_length) gain = gain.mul(this.getEffect(x+1))
             if (BUYABLES.electrons.getLevel(4).gte(1)) gain = gain.mul(BUYABLES.electrons[4].effect().mult)
             if (player.cations.gen_length > 1) gain = gain.mul(FUNCTIONS.cations.generators[2].effect())
+            if (player.plasma.points.gte(1)) gain = gain.mul(PLASMA.resources.volume.effect().mult)
             if (UPGRADES.includesUpgrade('2-12') && x == 5) gain = gain.pow(UPGRADES[2][12].effect())
             if (CHALLENGES.cation.isIn(4)) gain = gain.pow(0.25)
             return gain

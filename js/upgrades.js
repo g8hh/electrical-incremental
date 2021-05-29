@@ -13,7 +13,7 @@ const UPGRADES = {
         if (player.upgrades.buyed[rc.r] === undefined) player.upgrades.buyed[rc.r] = []
         return (player.upgrades.buyed[rc.r] !== undefined)?player.upgrades.buyed[rc.r].includes(rc.c):false
     },
-    rows: 3,
+    rows: 4,
     1: {
         unl() { return player.anions.unl },
         rowID: 1,
@@ -305,6 +305,32 @@ const UPGRADES = {
             cost() { return E(1e11) },
             effect() {
                 let eff = E(1.025).pow(player.electrons.add(1).log10())
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x' },
+        },
+    },
+    4: {
+        unl() { return player.plasma.unl },
+        rowID: 4,
+        numberFixed: 6,
+        title: 'Plasma',
+        id: 'P',
+        price: 'plasma particles',
+        can(x) { return this[x].unl() && player.plasma.particles.gte(this[x].cost()) && !UPGRADES.includesUpgrade(this.rowID+'-'+x) },
+        buy(x) {
+            if (this.can(x)) {
+                player.plasma.particles = player.plasma.particles.sub(this[x].cost())
+                UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
+            }
+        },
+        cols: 1,
+        1: {
+            unl() { return true },
+            desc() { return `Gain more plasma particles based on unspent electrons.` },
+            cost() { return E(0.001) },
+            effect() {
+                let eff = player.electrons.add(1).log10().add(1).pow(0.25)
                 return eff
             },
             effDesc(x=this.effect()) { return format(x, 2)+'x' },

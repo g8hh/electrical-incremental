@@ -120,6 +120,7 @@ h2 {
     cursor: pointer;
 }
 
+.prestige_button.plasma.can,
 .upgrade.plasma.can {
     background-color: #9c13db;
     cursor: pointer;

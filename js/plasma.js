@@ -3,6 +3,12 @@
 //tooltip() { return `OOOH!` },
 
 const PLASMA = {
+    getParticlesGain() {
+        let gain = E(2).pow(player.plasma.points).sub(1)
+        gain = gain.mul(PLASMA.resources.volume.effect().part)
+        if (UPGRADES.includesUpgrade('4-1')) gain = gain.mul(UPGRADES[4][1].effect())
+        return gain.div(1e6)
+    },
     maps: {
         44: {
             unl() { return player.plasma.points.gte(1) },
@@ -60,14 +66,41 @@ const PLASMA = {
         volume: {
             gain() {
                 let gain = E(1)
+                gain = gain.mul(this.getEffect())
                 if (player.plasma.buyables.volume.gte(1)) gain = gain.mul(PLASMA.buyables.volume.effect())
                 return gain.div(1e3)
             },
             effect(x=player.plasma.resources.volume.mul(1e3)) {
                 let eff = {}
                 eff.mult = x.add(1).pow(2)
+                if (player.plasma.volume_core.gte(1e-3)) eff.mult = eff.mult.pow(PLASMA.resources.volume.core.effect())
                 eff.part = x.add(1).log10().div(2).add(1)
                 return eff
+            },
+            getEffect(x=player.electrons) {
+                let eff = x.add(1).log10().add(1).pow(0.5)
+                return eff
+            },
+            core: {
+                gain(x=player.plasma.resources.volume) {
+                    let gain = x.div(10).pow(0.5)
+                    return gain.floor().div(1e3)
+                },
+                effect(x=player.plasma.volume_core) {
+                    let eff = x.mul(1e3).add(1).log10().mul(1.5).add(1)
+                    return eff
+                },
+                canReset() { return this.gain().gte(1e-3) },
+                reset() {
+                    if (this.canReset()) {
+                        player.plasma.volume_core = player.plasma.volume_core.add(this.gain())
+                        this.doReset()
+                    }
+                },
+                doReset(msg) {
+                    player.plasma.resources.volume = E(0)
+                    player.plasma.buyables.volume = E(0)
+                },
             },
         },
     },
@@ -83,10 +116,12 @@ const PLASMA = {
             },
             effect(x=player.plasma.buyables.volume) {
                 let eff = x.add(1)
+                if (player.plasma.volume_core.gte(1e-3)) eff = eff.pow(PLASMA.resources.volume.core.effect())
                 return eff
             },
         },
     },
+
     choosedPlasma(x) {
         if (this.maps[x].tooltip !== undefined) player.plasma_choosed = x
     },
@@ -112,10 +147,5 @@ const PLASMA = {
         player.cations.chals.completed = []
         player.upgrades.buyed[3] = []
         FUNCTIONS.cations.doReset()
-    },
-    getParticlesGain() {
-        let gain = E(2).pow(player.plasma.points).sub(1)
-        gain = gain.mul(PLASMA.resources.volume.effect().part)
-        return gain.div(1e6)
     },
 }

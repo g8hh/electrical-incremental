@@ -1,0 +1,218 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Incremental game made by MrRedShark77">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="js/ExpantaNum.js"></script>
+    <script src="js/saves.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/upgrades.js"></script>
+    <script src="js/challenges.js"></script>
+    <script src="js/plasma.js"></script>
+    <script src="js/v.js"></script>
+
+    <title>Electrical Incremental</title>
+</head>
+<body onload="loadGame()">
+    <div id='loading' style='font-size: 70px; position: relative; top: 40%'>
+        Loading Game...
+    </div>
+    <div id='app' style='display: none'>
+        <br>
+        <div class="table_center">
+            <div v-for='x in TABS[1]' v-if='x.unl()'>
+                <button class='tab_button' v-on:click="FUNCTIONS.chTabs(0, TABS[1].indexOf(x))" v-bind:class="{[x.style]: true}">{{ x.id }}</button>
+            </div>
+        </div><br>
+        <div v-if='player.tabs[0] == 0'>
+            <div class='main1'>
+                You have <h2>{{ format(player.electrons, 0) }}</h2> electrons<br>
+                (+{{ format(FUNCTIONS.getElectronGain(),1) }}/s)<br>
+                Your electrical capacity is <h2>{{ format(FUNCTIONS.getElectricalCapacity(), 0) }}</h2>
+            </div><br>
+            <div class='main1'>
+                <h2>Buyables</h2><br><br>
+                <div class='table_center'>
+                    <div v-for='x in BUYABLES.electrons.cols' v-if='BUYABLES.electrons[x]'>
+                        <button class='upgrade electron' v-if='BUYABLES.electrons[x].unl()' v-bind:class='{can: BUYABLES.electrons.can(x)}' v-on:click='BUYABLES.electrons.buy(x)'>
+                            <b>{{ BUYABLES.electrons[x].title }}</b><br>
+                            {{ BUYABLES.electrons[x].desc() }}<br>
+                            <span v-if='BUYABLES.electrons[x].effDesc'>Currently: {{ BUYABLES.electrons[x].effDesc() }}<br></span>
+                            Level: {{ format(BUYABLES.electrons.getLevel(x), 0) }}<br>
+                            Cost: {{ format(BUYABLES.electrons[x].cost(), 0) }} electrons
+                        </button>
+                    </div>
+                </div><br>
+            </div><br>
+            <div class='main1' v-if='player.eg_length > 0'>
+                <h2>Electrical Generators</h2><br><br>
+                <div class='table_center'>
+                    <div v-for='x in player.eg_length' class='electrical_generator'>
+                        <b>Generator #{{ format(x,0) }}</b><br>
+                        <div style="height: 130px">
+                            Have <b>{{ format(player.electrical_generators[x].powers,0) }}</b> electrical powers, which multiples <b>{{ x==1?'electrons':'previous powers' }}</b> gain by<br>
+                            <b>{{ format(FUNCTIONS.electrical_generators.getEffect(x),2) }}x</b><br>
+                            (+{{format(FUNCTIONS.electrical_generators.getPowerGain(x),1)}}/s)
+                        </div>
+                        Level {{ format(player.electrical_generators[x].lvl,0) }}<br>
+                        Cost: {{ format(FUNCTIONS.electrical_generators.getCost(x),0) }} electrons<br><br>
+                        <button class='gen_button' v-bind:class='{can: FUNCTIONS.electrical_generators.can(x)}' v-on:click='FUNCTIONS.electrical_generators.buy(x)'>Buy to Upgrade</button>
+                    </div>
+                </div><br>
+            </div>
+        </div><div v-if='player.tabs[0] == 1'>
+            <button onclick="save()">Save</button>
+            <button onclick="if (confirm('You wanted to RESET your progress to new game?')) {wipe(); location.reload()}">Hard Reset</button>
+            <button onclick="exporty()">Export</button>
+            <button onclick="importy()">Import</button><br><br>
+            "Electrical Incremental" - made by MrRedShark77<br>
+            Game Version - v1.2 beta 0.1.1
+        </div><div v-if='player.tabs[0] == 3'>
+            You need to unlock more automatons!<br><br>
+            <div class="main1">
+                <br><div class='table_center'>
+                    <div v-for='x in Object.keys(AUTOS).length' v-if='AUTOS[x].unl()' class="automaton">
+                        <div style='height: 60px;'><b>{{ AUTOS[x].title }}</b></div>
+                        <span v-if='!AUTOS[x].sub_autos'>Enabled: <input type="checkbox" v-model="player.automatons[AUTOS[x].id]"></span>
+                        <div v-if='AUTOS[x].sub_autos'>
+                            <div v-for='sx in Object.keys(AUTOS[x].sub_autos).length' v-if='AUTOS[x].sub_autos[sx].unl()'>{{ AUTOS[x].sub_autos[sx].title }}: <input type="checkbox" v-model="player.automatons[AUTOS[x].sub_autos[sx].id]"></div>
+                        </div>
+                    </div>
+                </div><br>
+            </div>
+        </div><div v-if='player.tabs[0] == 4'>
+            <div class='upgrade_popup' v-if='player.upg_choosed != ""'>
+                <div style="height: 100px">{{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].desc() }}</div>
+                <span v-if='UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc'>Currently: {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc() }}<br></span>
+                <span v-if='!UPGRADES.includesUpgrade(player.upg_choosed)'>Cost: {{ format(UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].cost(), UPGRADES[UPGRADES.getRC(player.upg_choosed).r].numberFixed?UPGRADES[UPGRADES.getRC(player.upg_choosed).r].numberFixed:0) }} {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r].price }}</span>
+            </div>
+            <div v-for='r in UPGRADES.rows' v-if='UPGRADES[r].unl()'>
+                <div class='main1'>
+                    <h2>{{ UPGRADES[r].title }}</h2><br><br>
+                    <div class='table_center'>
+                        <div v-for='c in UPGRADES[r].cols' v-if='UPGRADES[r][c].unl()'>
+                            <button class='upgrade_mini' v-on:click='UPGRADES[r].buy(c)' v-bind:class='{can: UPGRADES[r].can(c) && !UPGRADES.includesUpgrade(r+"-"+c), purchased: UPGRADES.includesUpgrade(r+"-"+c)}' v-on:mouseover="player.upg_choosed = r+'-'+c" v-on:mouseout="player.upg_choosed = ''">{{ UPGRADES[r].id+'-'+c }}</button>
+                        </div>
+                    </div>
+                    <br>
+                </div><br>
+            </div>
+        </div><div v-if='player.tabs[0] == 5'>
+            <div class='main_anion'>
+                You have <h2>{{ format(player.anions.points, 0) }}</h2> anions, which generates <h2>{{ format(FUNCTIONS.anions.effect(), 1) }}</h2> anion charges per second<br><br>
+                <button class='prestige_button anion' v-bind:class='{can: FUNCTIONS.anions.canReset()}' onclick='FUNCTIONS.anions.reset()'>Reset previous electron features for +<b>{{ format(FUNCTIONS.anions.gain(), 0) }}</b> anions</button><br><br>
+            </div><br>
+            <div class='main_anion'>
+                You have <h2>{{ format(player.anions.charges, 1) }}</h2> anion charges, which are adding <h2>{{ format(FUNCTIONS.anions.charges.getCharged(), 0) }}</h2> charged anions<br>
+                (+{{ format(FUNCTIONS.anions.charges.gain(), 1) }}/s)<br>
+                You have <h2>{{ format(FUNCTIONS.anions.charges.getUnspentCharged(), 0) }}</h2> unspent charged anions
+            </div><br>
+            <div class='main_anion'>
+                <h2>Types of Charged Anions</h2><br><br>
+                <button onclick='player.anions.respec_types = !player.anions.respec_types'>Respec all spent charged anions: {{ player.anions.respec_types?'ON':'OFF' }}</button><br>
+                <div v-if='UPGRADES.includesUpgrade("3-2")'>Ratio [{{ player.anions.ratio_types }}] <button v-for='x in FUNCTIONS.anions.types.ratio.length' v-on:click='FUNCTIONS.anions.types.changeRatio(x-1)'>{{ FUNCTIONS.anions.types.ratio[x-1] }}</button></div><br>
+                <div class='table_center'>
+                    <div v-for='x in FUNCTIONS.anions.types.cols' class="anion_types">
+                        <b>{{ format(FUNCTIONS.anions.types.have(x), 0) }} {{ FUNCTIONS.anions.types[x].title }}</b><br>
+                        <div style="height: 95px">{{ FUNCTIONS.anions.types[x].desc() }}</div>
+                        Effect: {{ FUNCTIONS.anions.types[x].effDesc() }}<br><br>
+                        <button class='gen_button anion' v-bind:class='{can: FUNCTIONS.anions.types.canPut()}' v-on:click='FUNCTIONS.anions.types.put(x)'>Add {{ FUNCTIONS.anions.types[x].title }}</button>
+                    </div>
+                </div>
+                <br>
+            </div><br>
+            <div class='main_anion'>
+                You have <h2>{{ format(player.anions.anti_anions, 0) }}<span v-if='FUNCTIONS.cations.effect().add.gt(0)'> + {{ format(FUNCTIONS.cations.effect().add, 2) }}</span></h2> anti-electrical anions, which make charged anion types <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().strDesc, 2) }}</h2>% stronger, and adds <h2>{{ format(FUNCTIONS.anions.anti_anions.effect().add) }}</h2> bonus to their effects<br><br>
+                <button class='prestige_button anion' v-bind:class='{can: FUNCTIONS.anions.anti_anions.canReset()}' onclick='FUNCTIONS.anions.anti_anions.reset()'>Reset your anions to get 1 anti-electrical anion<br>Requires: {{ format(FUNCTIONS.anions.anti_anions.req(), 0) }} anions</button><br><br>
+            </div>
+        </div><div v-if='player.tabs[0] == 6'>
+            <div class='main_cation'>
+                You have <h2>{{ format(player.cations.points, 0) }}</h2> cations, which boosts anions gain by <h2>{{ format(FUNCTIONS.cations.effect().mult, 2) }}</h2>x, and add <h2>{{ format(FUNCTIONS.cations.effect().add, 2) }}</h2> free anti-electrical anions<br><br>
+                <button class='prestige_button cation' v-bind:class='{can: FUNCTIONS.cations.canReset()}' onclick='FUNCTIONS.cations.reset()'>
+                    <span v-if='CHALLENGES.cation.isIn(0)'>Reset all previous features for +<b>{{ format(FUNCTIONS.cations.gain(), 0) }}</b> cations</span>
+                    <span v-if='!CHALLENGES.cation.isIn(0) && CHALLENGES.cation.canComplete()'>Finish Cation Challenge</span>
+                    <span v-if='!CHALLENGES.cation.isIn(0) && !CHALLENGES.cation.canComplete()'>
+                        Need to reach {{ format(CHALLENGES.cation[player.cations.chals.active].goal(), 0) }} electron to finish<br>
+                        ({{ CHALLENGES.cation.progress() }})
+                    </span>
+                </button><br><br>
+            </div><br><div class="table_center">
+                <div v-for='x in TABS[2]["Cations"]' v-if='x.unl()'>
+                    <button class='tab_button' v-on:click="FUNCTIONS.chTabs(1, TABS[2]['Cations'].indexOf(x))" v-bind:class="{[x.style]: true}">{{ x.id }}</button>
+                </div>
+            </div><br><div v-if='player.tabs[1] == 0'>
+                <div class='main_cation'>
+                    <h2>Cation Generators</h2><br><br>
+                    <button class='prestige_button cation' v-bind:class='{can: FUNCTIONS.cations.generators.canBuyGen()}' onclick='FUNCTIONS.cations.generators.buyGen()'><span v-if='5 > player.cations.gen_length'>Get new generators</span><span v-if='5 == player.cations.gen_length'>Generator Boosters ({{ format(player.cations.gen_boosts, 0) }})<br>Boost types of cations gain by {{ format(FUNCTIONS.cations.generators.getBoostEffect(), 1) }}x</span><br>Cost: {{ format(FUNCTIONS.cations.generators.getCost(), 0) }} cations</button><br><br>
+                    <div class='table_center'>
+                        <div class='electrical_generator cation_generator' v-for='x in player.cations.gen_length'>
+                            You have <b>{{ format(FUNCTIONS.cations.generators.have(x), 1) }}</b> (+{{ format(FUNCTIONS.cations.generators.getGain(x), 1) }}/s) <b>{{ FUNCTIONS.cations.generators.getType(x) }} Cations</b>, which {{ FUNCTIONS.cations.generators[x].desc() }}<br>
+                            And boosts this cations gain by {{ format(FUNCTIONS.cations.generators.getGainEffect(x).owner, 2) }}x
+                            <span v-if='player.cations.gen_length > x || player.cations.gen_length == 5'><br>More, {{ FUNCTIONS.cations.generators.getType(x+1) }} Cations boost that cations gain by {{ format(FUNCTIONS.cations.generators.getGainEffect(x).next, 2) }}x</span>
+                        </div>
+                    </div>
+                    <br>
+                </div>
+            </div><div v-if='player.tabs[1] == 1'>
+                Note 1: When enter in any cation challenge, resets cations from their generators and all previous upgrades.<br>
+                Note 2: In any cation challenge, cations don’t give their effects.<br><br>
+                <button class="chal_button" v-if='!CHALLENGES.cation.isIn(0)' onclick='CHALLENGES.cation.exitChal()'>Exit Challenge</button><br><br>
+                <div class='main_cation'>
+                    <br><div class='table_center'>
+                        <div v-for='x in CHALLENGES.cation.cols' class="cation_chal">
+                            <div style='height: 50%'>
+                                <b>{{ CHALLENGES.cation[x].title }}</b><br><br>
+                                {{ CHALLENGES.cation[x].desc() }}
+                            </div><button class="chal_button" v-on:click='CHALLENGES.cation.onChal(x)'>{{ CHALLENGES.cation.msg(x) }}</button><br><br>
+                            Goal: {{ format(CHALLENGES.cation[x].goal(),0) }} electrons<br>
+                            Reward: {{ CHALLENGES.cation[x].reward() }}
+                        </div>
+                    </div><br>
+                </div>
+            </div>
+        </div><div v-if='player.tabs[0] == 7'>
+            <div class='main_plasma'>
+                You have <h2>{{ format(player.plasma.particles, 6) }}</h2> plasma particles<br>
+                (+{{ format(PLASMA.getParticlesGain(), 6) }}/s)<br>
+            </div><br>
+            <div v-if='player.tabs[1] != 0'><button onclick="FUNCTIONS.chTabs(1, 0)">Back to Plasma Map</button><br><br></div><div class='main_plasma' v-if='player.tabs[1] == 0'>
+                <span v-if='player.plasma_choosed != 0'>{{ PLASMA.maps[player.plasma_choosed].tooltip() }}</span><br><br>
+                <div style="background: #8400c2; background: radial-gradient(circle, #b920ff 0%, #8400c2 25%, #8400c2 100%);">
+                    <div class='table_center' v-for='y in 9'>
+                        <div class='invisible_plasma_box' v-for='x in 9'>
+                            <div v-if='PLASMA.maps[y*10+x]?PLASMA.maps[y*10+x].unl():false'>
+                                <div v-if='PLASMA.maps[y*10+x].type == "text"'>
+                                    <span v-bind:style="{'font-size': PLASMA.maps[y*10+x].size+'px'}">{{ PLASMA.maps[y*10+x].text() }}</span>
+                                </div><div v-if='PLASMA.maps[y*10+x].type == "button"'>
+                                    <button class='plasma_button' v-on:mouseover="PLASMA.choosedPlasma(y*10+x)" v-on:mouseout="player.plasma_choosed = 0" v-bind:class="{can: y*10+x==55?PLASMA.canReset():true}" v-on:click="PLASMA.onClick(y*10+x)">
+                                        <span v-if='PLASMA.maps[y*10+x].text'>{{ PLASMA.maps[y*10+x].text() }}</span>
+                                        <div class="plasma_image" v-if='PLASMA.maps[y*10+x].image' v-bind:style="{'background-image': 'url('+PLASMA.maps[y*10+x].image+')'}"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><div v-if='player.tabs[1] == 1'>
+                <div class='main_plasma'>
+                    You have <h2>{{ format(player.plasma.resources.volume) }}</h2> (+{{ format(PLASMA.resources.volume.gain()) }}/s) m<sup>3</sup> of plasma, which boosts electrons and electrical powers from electrical generators gain by <h2>{{ format(PLASMA.resources.volume.effect().mult,2) }}</h2>x, and boosts plasma particles gain by <h2>{{ format(PLASMA.resources.volume.effect().part,2) }}</h2>x<br>
+                    More, their resources is boosted by electrons ({{ format(PLASMA.resources.volume.getEffect(), 2) }}x)<br><br>
+                    <button class='upgrade plasma' v-bind:class="{can: PLASMA.buyables.volume.canBuy()}" onclick="PLASMA.buyables.volume.buy()">
+                        Increase their resources gain by 1x<br>
+                        Currently: {{ format(PLASMA.buyables.volume.effect(), 1) }}x<br>
+                        Level: {{ format(player.plasma.buyables.volume, 0) }}<br>
+                        Cost: {{ format(PLASMA.buyables.volume.cost(), 6) }} plasma particles
+                    </button><br><br>
+                </div><br><div class='main_plasma'>
+                    You have <h2>{{ format(player.plasma.volume_core) }}</h2> m<sup>3</sup> of plasma core, which raises effect from this buyable and volume effect to electron gain by <h2>{{ format(PLASMA.resources.volume.core.effect()) }}</h2><br><br>
+                    <button class='prestige_button plasma' v-bind:class='{can: PLASMA.resources.volume.core.canReset()}' onclick='PLASMA.resources.volume.core.reset()'>Reset your volume for <b>+{{ format(PLASMA.resources.volume.core.gain()) }}</b> m<sup>3</sup> of plasma core</button><br><br>
+                </div>
+            </div>
+        </div>
+        <div style='display: none'>{{ player.time }}</div>
+    </div>
+</body>
+</html>

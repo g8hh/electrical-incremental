@@ -1,0 +1,337 @@
+:root {
+    --mouse-x: 0;
+    --mouse-y: 0;
+}
+
+* {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    table-align: center;
+	text-align: center;
+}
+
+body {
+    color: white;
+    background-color: #77f;
+	overflow-x: hidden;
+	font-size: 14px;
+}
+
+table, tr {
+    display: flex;
+    justify-content: center;
+}
+
+button {
+    border: solid 3px black;
+    background-color: white;
+    font-size: 14px;
+	cursor: pointer;
+    border-radius: 10px;
+}
+
+h1 {
+    display: inline;
+	font-weight: normal;
+    font-size: 35px;
+}
+
+h2 {
+	display: inline;
+	font-weight: normal;
+    font-size: 25px;
+}
+
+.tab_button {
+    width: 120px;
+    height: 36px;
+    border-radius: 18px;
+    font-size: 11px;
+    background-color: #66f;
+    color: white;
+}
+
+.tab_button.normal_tab:hover {
+    background-color: #55f;
+}
+
+.tab_button.anion_tab {
+    background-color: #ff5953;
+}
+.tab_button.anion_tab:hover {
+    background-color: #e43b35;
+}
+
+.tab_button.cation_tab {
+    background-color: #5de23c;
+}
+.tab_button.cation_tab:hover {
+    background-color: #4cd829;
+}
+
+.tab_button.plasma_tab {
+    background-color: #8400c2;
+}
+.tab_button.plasma_tab:hover {
+    background: #910bcf;
+    background: linear-gradient(45deg, #910bcf 0%, #910bcf 20%, #c954ff 49%, #c954ff 51%, #910bcf 80%, #910bcf 100%);
+}
+
+.table_center {
+    display: flex;
+    justify-content: center;
+    flex-flow: row wrap;
+}
+
+.main1 {
+    width: 100%;
+    background-color: #55f;
+}
+
+.main_anion {
+    width: 100%;
+    background-color: #e43b35;
+}
+
+.main_cation {
+    width: 100%;
+    background-color: #4cd829;
+}
+
+.main_plasma {
+    width: 100%;
+    background-color: #8400c2;
+}
+
+.upgrade {
+    width: 150px;
+    height: 150px;
+    border-radius: 20px;
+    color: white;
+    font-size: 10px;
+    transition-duration: 0.5s;
+    cursor: default;
+    background-color: #666
+}
+
+.upgrade.electron.can,
+.gen_button.can,
+.upgrade_mini.can {
+    background-color: #66f;
+    cursor: pointer;
+}
+
+.prestige_button.plasma.can,
+.upgrade.plasma.can {
+    background-color: #9c13db;
+    cursor: pointer;
+}
+
+.can {
+	cursor: pointer;
+}
+
+.can:hover {
+	transform: scale(1.15, 1.15);
+}
+
+.electrical_generator {
+    width: 300px;
+    height: 250px;
+    background-color: #77f;
+    border-radius: 20px;
+    margin: 3px;
+}
+
+.gen_button {
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+    color: white;
+    transition-duration: 0.5s;
+    cursor: default;
+    background-color: #666
+}
+
+.gen_button.anion.can {
+    background-color: #f04741;
+}
+
+.prestige_button {
+    width: 180px;
+    height: 120px;
+    font-size: 12px;
+    border-radius: 20px;
+    background-color: #666;
+    transition-duration: 0.5s;
+    cursor: default;
+}
+
+.prestige_button.anion.can {
+    cursor: pointer;
+    background-color: #ff5953;
+}
+
+.prestige_button.cation.can {
+    cursor: pointer;
+    background-color: #5de23c;
+}
+
+.anion_types {
+    border-radius: 20px;
+    width: 270px;
+    height: 200px;
+    background-color: #ff5953;
+    margin: 3px;
+}
+
+.upgrade_popup {
+    position: absolute;
+    top: calc(calc(var(--mouse-y) + 15) * 1px);
+    left: calc(calc(var(--mouse-x) + 15) * 1px);
+    width: 240px;
+    height: 170px;
+    font-size: 12px;
+    border-radius: 20px;
+    border: solid 3px black;
+    background-color: #66f;
+    padding: 10px;
+    z-index: 1;
+}
+
+.upgrade_mini {
+    width: 80px;
+    height: 80px;
+    background-color: #666;
+    transition-duration: 0.5s;
+    cursor: default;
+}
+.upgrade_mini.purchased {
+    background-color: #3a3;
+}
+
+.automaton {
+    width: 220px;
+    height: 160px;
+    background-color: #77f;
+    border-radius: 20px;
+    margin: 3px;
+    padding: 5px;
+}
+
+.electrical_generator.cation_generator {
+    width: 500px;
+    height: 100px;
+    background-color: #5de23c;
+    padding: 5px;
+}
+
+.cation_chal {
+    font-size: 12px;
+    width: 200px;
+    height: 250px;
+    background-color: #5de23c;
+    padding: 5px;
+    border-radius: 20px;
+    margin: 5px;
+}
+
+.chal_button {
+    width: 150px;
+    height: 30px;
+    border-radius: 15px;
+}
+
+.invisible_plasma_box {
+    width: 90px;
+    height: 90px;
+}
+
+.plasma_button {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    transform: scale(1.25, 1.25);
+    background-color: #666;
+    border-color: white;
+    border-width: 0px;
+    font-size: 9px;
+    color: white;
+    transition-duration: 0.5s;
+    cursor: default;
+}
+.plasma_image {
+    width: 100%;
+    height: 100%;
+    background-size: 100% 100%;
+}
+.plasma_button.can {
+    background-color: #9c13db;
+    cursor: pointer;
+}
+.plasma_button.can:hover {
+    transform: scale(1.5, 1.5);
+}
+
+[tooltip] {
+	position: relative;
+	z-index: 2;
+	white-space: pre-wrap;
+}
+
+[tooltip]:before,
+[tooltip]:after {
+	visibility: hidden;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=0);
+	opacity: 0;
+	pointer-events: none;
+	white-space: pre-wrap;
+}
+
+[tooltip]:before {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-bottom: 5px;
+	margin-left: -80px;
+	padding: 7px;
+	width: 160px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background-color: #000;
+	background-color: hsla(0, 0%, 5%, 0.9);
+	color: #fff;
+	content: attr(tooltip);
+	text-align: center;
+	font-size: 14px;
+	line-height: 1.2;
+	transition-duration: 0.5s;
+	white-space: pre-wrap;
+}
+
+[tooltip]:after {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -5px;
+	width: 0;
+	border-top: 5px solid #000;
+	border-top: 5px solid hsla(0, 0%, 5%, 0.9);
+	border-right: 5px solid transparent;
+	border-left: 5px solid transparent;
+	content: " ";
+	font-size: 0;
+	line-height: 0;
+	transition-duration: 0.5s;
+	white-space: pre-wrap;
+}
+
+[tooltip]:hover:before,
+[tooltip]:hover:after {
+	visibility: visible;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
+	opacity: 1;
+	white-space: pre-wrap;
+}

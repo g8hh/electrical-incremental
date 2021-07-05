@@ -119,6 +119,9 @@ const PLAYER_DATA = {
         buyables: {volume: E(0), mass: E(0), temp: E(0), charge: E(0)},
         volume_core: E(0),
     },
+    options: {
+        show_upgrade_cost: false,
+    },
 }
 
 function wipe() {
@@ -181,6 +184,9 @@ function checkIfUndefined() {
     if (player.plasma.buyables === undefined) player.plasma.buyables = data.plasma.buyables
     for (let x = 0; x < Object.keys(data.plasma.buyables).length; x++) if (player.plasma.buyables[Object.keys(data.plasma.buyables)[x]] === undefined) player.plasma.buyables[Object.keys(data.plasma.buyables)[x]] = data.plasma.buyables[Object.keys(data.plasma.buyables)[x]]
     if (player.plasma.volume_core === undefined) player.plasma.volume_core = data.plasma.volume_core
+
+    if (player.options === undefined) player.options = data.options
+    for (let x = 0; x < Object.keys(data.options).length; x++) if (player.options[Object.keys(data.options)[x]] === undefined) player.options[Object.keys(data.options)[x]] = data.options[Object.keys(data.options)[x]]
 }
 
 function convertToExpantaNum() {

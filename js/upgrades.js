@@ -324,7 +324,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 1,
+        cols: 2,
         1: {
             unl() { return true },
             desc() { return `Gain more plasma particles based on unspent electrons.` },
@@ -334,6 +334,16 @@ const UPGRADES = {
                 return eff
             },
             effDesc(x=this.effect()) { return format(x, 2)+'x' },
+        },
+        2: {
+            unl() { return true },
+            desc() { return `Cations gain softcap starts later based on unspent plasma particles.` },
+            cost() { return E(0.025) },
+            effect() {
+                let eff = player.plasma.particles.mul(1e3).add(1)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x later' },
         },
     },
 }

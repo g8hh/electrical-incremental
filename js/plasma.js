@@ -88,7 +88,7 @@ const PLASMA = {
                 },
                 effect(x=player.plasma.volume_core) {
                     let eff = x.mul(1e3).add(1).log10().mul(1.5).add(1)
-                    return eff
+                    return eff.softcap(5,10,1)
                 },
                 canReset() { return this.gain().gte(1e-3) },
                 reset() {

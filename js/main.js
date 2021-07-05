@@ -253,7 +253,9 @@ const FUNCTIONS = {
             if (gain.lt(1)) return E(0)
             gain = gain.pow(2/5)
 
-            gain = gain.softcap(1e4,0.1,0)
+            let soft = E(1e4)
+            if (UPGRADES.includesUpgrade('4-2')) soft = soft.mul(UPGRADES[4][2].effect())
+            gain = gain.softcap(soft,0.1,0)
 
             if (UPGRADES.includesUpgrade('3-4')) gain = gain.mul(UPGRADES[3][4].effect())
 

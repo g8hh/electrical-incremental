@@ -46,6 +46,7 @@ const CHALLENGES = {
             reward(eff = this.effect()) { return `Each type of cation generator is increased by 50% for every OoM of cations.\nCurrently: ${format(eff, 2)}x` },
             effect() {
                 let eff = E(1.5).pow(player.cations.points.add(1).log10().mul(2))
+                eff = eff.softcap(1e9,1/3,0)
                 return eff
             },
         },

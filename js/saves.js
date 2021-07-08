@@ -31,6 +31,7 @@ function calc(dt) {
 
     if (player.anions.unl) player.anions.charges = player.anions.charges.add(FUNCTIONS.anions.charges.gain().mul(dt))
     if (UPGRADES.includesUpgrade('3-3')) player.anions.points = player.anions.points.add(FUNCTIONS.anions.gain().mul(dt/10))
+    if (UPGRADES.includesUpgrade('4-4')) player.cations.points = player.cations.points.add(FUNCTIONS.cations.gain().mul(dt/10))
 
     for (let x = 1; x <= player.eg_length; x++) player.electrical_generators[x].powers = player.electrical_generators[x].powers.add(FUNCTIONS.electrical_generators.getPowerGain(x).mul(dt))
     for (let x = 1; x <= player.cations.gen_length; x++) player.cations.generators[x] = player.cations.generators[x].add(FUNCTIONS.cations.generators.getGain(x).mul(dt))
@@ -38,6 +39,7 @@ function calc(dt) {
     if (player.plasma.unl) {
         player.plasma.particles = player.plasma.particles.add(PLASMA.getParticlesGain().mul(dt))
         player.plasma.resources.volume = player.plasma.resources.volume.add(PLASMA.resources.volume.gain().mul(dt))
+        if (player.plasma.points.gte(4)) player.plasma.resources.mass = player.plasma.resources.mass.add(PLASMA.resources.mass.gain().mul(dt))
     }
 }
 

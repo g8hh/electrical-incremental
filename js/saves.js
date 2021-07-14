@@ -31,6 +31,7 @@ function calc(dt) {
 
     if (player.anions.unl) player.anions.charges = player.anions.charges.add(FUNCTIONS.anions.charges.gain().mul(dt))
     if (UPGRADES.includesUpgrade('3-3')) player.anions.points = player.anions.points.add(FUNCTIONS.anions.gain().mul(dt/10))
+    if (UPGRADES.includesUpgrade('4-4')) player.cations.points = player.cations.points.add(FUNCTIONS.cations.gain().mul(dt/10))
 
     for (let x = 1; x <= player.eg_length; x++) player.electrical_generators[x].powers = player.electrical_generators[x].powers.add(FUNCTIONS.electrical_generators.getPowerGain(x).mul(dt))
     for (let x = 1; x <= player.cations.gen_length; x++) player.cations.generators[x] = player.cations.generators[x].add(FUNCTIONS.cations.generators.getGain(x).mul(dt))
@@ -38,6 +39,7 @@ function calc(dt) {
     if (player.plasma.unl) {
         player.plasma.particles = player.plasma.particles.add(PLASMA.getParticlesGain().mul(dt))
         player.plasma.resources.volume = player.plasma.resources.volume.add(PLASMA.resources.volume.gain().mul(dt))
+        if (player.plasma.points.gte(4)) player.plasma.resources.mass = player.plasma.resources.mass.add(PLASMA.resources.mass.gain().mul(dt))
     }
 }
 
@@ -119,6 +121,9 @@ const PLAYER_DATA = {
         buyables: {volume: E(0), mass: E(0), temp: E(0), charge: E(0)},
         volume_core: E(0),
     },
+    options: {
+        show_upgrade_cost: false,
+    },
 }
 
 function wipe() {
@@ -181,6 +186,9 @@ function checkIfUndefined() {
     if (player.plasma.buyables === undefined) player.plasma.buyables = data.plasma.buyables
     for (let x = 0; x < Object.keys(data.plasma.buyables).length; x++) if (player.plasma.buyables[Object.keys(data.plasma.buyables)[x]] === undefined) player.plasma.buyables[Object.keys(data.plasma.buyables)[x]] = data.plasma.buyables[Object.keys(data.plasma.buyables)[x]]
     if (player.plasma.volume_core === undefined) player.plasma.volume_core = data.plasma.volume_core
+
+    if (player.options === undefined) player.options = data.options
+    for (let x = 0; x < Object.keys(data.options).length; x++) if (player.options[Object.keys(data.options)[x]] === undefined) player.options[Object.keys(data.options)[x]] = data.options[Object.keys(data.options)[x]]
 }
 
 function convertToExpantaNum() {

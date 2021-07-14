@@ -69,9 +69,10 @@
             <button onclick="save()">Save</button>
             <button onclick="if (confirm('You wanted to RESET your progress to new game?')) {wipe(); location.reload()}">Hard Reset</button>
             <button onclick="exporty()">Export</button>
-            <button onclick="importy()">Import</button><br><br>
+            <button onclick="importy()">Import</button><br>
+            <button onclick="player.options.show_upgrade_cost = !player.options.show_upgrade_cost">Show cost after buying upgrades - {{ player.options.show_upgrade_cost?"ON":"OFF" }}</button><br><br>
             "Electrical Incremental" - made by MrRedShark77<br>
-            Game Version - v1.2 beta 0.1.1
+            Game Version - v1.2 beta 0.2
         </div><div v-if='player.tabs[0] == 3'>
             You need to unlock more automatons!<br><br>
             <div class="main1">
@@ -89,7 +90,7 @@
             <div class='upgrade_popup' v-if='player.upg_choosed != ""'>
                 <div style="height: 100px">{{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].desc() }}</div>
                 <span v-if='UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc'>Currently: {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].effDesc() }}<br></span>
-                <span v-if='!UPGRADES.includesUpgrade(player.upg_choosed)'>Cost: {{ format(UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].cost(), UPGRADES[UPGRADES.getRC(player.upg_choosed).r].numberFixed?UPGRADES[UPGRADES.getRC(player.upg_choosed).r].numberFixed:0) }} {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r].price }}</span>
+                <span v-if='!UPGRADES.includesUpgrade(player.upg_choosed) || player.options.show_upgrade_cost'>Cost: {{ format(UPGRADES[UPGRADES.getRC(player.upg_choosed).r][UPGRADES.getRC(player.upg_choosed).c].cost(), UPGRADES[UPGRADES.getRC(player.upg_choosed).r].numberFixed?UPGRADES[UPGRADES.getRC(player.upg_choosed).r].numberFixed:0) }} {{ UPGRADES[UPGRADES.getRC(player.upg_choosed).r].price }}</span>
             </div>
             <div v-for='r in UPGRADES.rows' v-if='UPGRADES[r].unl()'>
                 <div class='main1'>
@@ -211,6 +212,17 @@
                 </div><br><div class='main_plasma'>
                     You have <h2>{{ format(player.plasma.volume_core) }}</h2> m<sup>3</sup> of plasma core, which raises effect from this buyable and volume effect to electron gain by <h2>{{ format(PLASMA.resources.volume.core.effect()) }}</h2><br><br>
                     <button class='prestige_button plasma' v-bind:class='{can: PLASMA.resources.volume.core.canReset()}' onclick='PLASMA.resources.volume.core.reset()'>Reset your volume for <b>+{{ format(PLASMA.resources.volume.core.gain()) }}</b> m<sup>3</sup> of plasma core</button><br><br>
+                </div>
+            </div><div v-if='player.tabs[1] == 2'>
+                <div class='main_plasma'>
+                    You have <h2>{{ format(player.plasma.resources.mass) }}</h2> (+{{ format(PLASMA.resources.mass.gain()) }}/s) kg of plasma, which boosts anions gain by <h2>{{ format(PLASMA.resources.mass.effect().anions,2) }}</h2>x, boosts cations gain by <h2>{{ format(PLASMA.resources.mass.effect().cations,2) }}</h2>x, and boosts plasma particles gain by <h2>{{ format(PLASMA.resources.mass.effect().part,2) }}</h2>x<br>
+                    More, their resources is boosted by anions & cations ({{ format(PLASMA.resources.mass.getEffect(), 2) }}x)<br><br>
+                    <button class='upgrade plasma' v-bind:class="{can: PLASMA.buyables.mass.canBuy()}" onclick="PLASMA.buyables.mass.buy()">
+                        Increase their resources gain by 1x<br>
+                        Currently: {{ format(PLASMA.buyables.mass.effect(), 1) }}x<br>
+                        Level: {{ format(player.plasma.buyables.mass, 0) }}<br>
+                        Cost: {{ format(PLASMA.buyables.mass.cost(), 6) }} plasma particles
+                    </button><br><br>
                 </div>
             </div>
         </div>

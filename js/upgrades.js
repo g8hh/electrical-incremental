@@ -27,7 +27,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 12,
+        cols: 13,
         1: {
             unl() { return true },
             desc() { return `Multiply electrical generator’s effects based on the sum of levels on these generators.` },
@@ -134,6 +134,16 @@ const UPGRADES = {
             },
             effDesc(x=this.effect()) { return format(x, 2)+'x' },
         },
+        13: {
+            unl() { return player.plasma.points.gte(4) },
+            desc() { return `Unspent electrons boost the mass of plasma gain at a reduced rate.` },
+            cost() { return E('e12100') },
+            effect() {
+                let eff = player.electrons.add(1).log10().add(1).pow(1/3)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x' },
+        },
     },
     2: {
         unl() { return player.anions.unl },
@@ -148,7 +158,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 12,
+        cols: 13,
         1: {
             unl() { return true },
             desc() { return `Make electron buyable “More Electrons” is 50% cheaper.` },
@@ -239,6 +249,16 @@ const UPGRADES = {
             },
             effDesc(x=this.effect()) { return '^'+format(x, 2) },
         },
+        13: {
+            unl() { return player.plasma.unl },
+            desc() { return `Anions boosts power from “More Electrical Powers”.` },
+            cost() { return E('e380') },
+            effect() {
+                let eff = player.anions.points.add(1).log10().add(1).pow(1/8)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+"x" },
+        },
     },
     3: {
         unl() { return player.cations.unl },
@@ -253,7 +273,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 8,
+        cols: 9,
         1: {
             unl() { return true },
             desc() { return `You can gain 1000x more anions, but this gets weaker the further you go (minimum 10x, at 1e10 anions).` },
@@ -309,6 +329,16 @@ const UPGRADES = {
             },
             effDesc(x=this.effect()) { return format(x, 2)+'x' },
         },
+        9: {
+            unl() { return player.plasma.unl },
+            desc() { return `Cations gain softcap^2 starts later based on your plasma powers..` },
+            cost() { return E(1e21) },
+            effect() {
+                let eff = player.plasma.points.add(1).pow(2)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x' },
+        },
     },
     4: {
         unl() { return player.plasma.unl },
@@ -324,7 +354,7 @@ const UPGRADES = {
                 UPGRADES.pushIdToUpgrade(this.rowID+'-'+x)
             }
         },
-        cols: 1,
+        cols: 5,
         1: {
             unl() { return true },
             desc() { return `Gain more plasma particles based on unspent electrons.` },
@@ -334,6 +364,36 @@ const UPGRADES = {
                 return eff
             },
             effDesc(x=this.effect()) { return format(x, 2)+'x' },
+        },
+        2: {
+            unl() { return true },
+            desc() { return `Cations gain softcap starts later based on unspent plasma particles.` },
+            cost() { return E(0.025) },
+            effect() {
+                let eff = player.plasma.particles.mul(1e3).add(1)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x, 2)+'x later' },
+        },
+        3: {
+            unl() { return true },
+            desc() { return `Keep cation challenges on reset. Plasma Power makes the anion & cation effect is stronger.` },
+            cost() { return E(0.125) },
+            effect() {
+                let eff = player.plasma.points.add(1).root(4)
+                return eff
+            },
+            effDesc(x=this.effect()) { return format(x.sub(1).mul(100), 3)+'%' },
+        },
+        4: {
+            unl() { return true },
+            desc() { return `Gain 10% of cations gain every second.` },
+            cost() { return E(1) },
+        },
+        5: {
+            unl() { return true },
+            desc() { return `Keep cation upgrade 3 on reset.` },
+            cost() { return E(10) },
         },
     },
 }

@@ -104,6 +104,7 @@ const FUNCTIONS = {
             else gain = gain.logBase(5).add(1)
 
             if (player.cations.unl) gain = gain.mul(FUNCTIONS.cations.effect().mult)
+            if (player.plasma.unl) gain = gain.mul(PLASMA.resources.mass.effect().anions)
             if (UPGRADES.includesUpgrade('1-6')) gain = gain.mul(UPGRADES[1][6].effect().anions)    
             if (UPGRADES.includesUpgrade('2-4')) gain = gain.mul(5)
             if (UPGRADES.includesUpgrade('2-6')) gain = gain.mul(UPGRADES[2][6].effect())
@@ -253,9 +254,16 @@ const FUNCTIONS = {
             if (gain.lt(1)) return E(0)
             gain = gain.pow(2/5)
 
-            gain = gain.softcap(1e4,0.1,0)
+            let soft = E(1e4)
+            if (UPGRADES.includesUpgrade('4-2')) soft = soft.mul(UPGRADES[4][2].effect())
+            gain = gain.softcap(soft,0.1,0)
 
             if (UPGRADES.includesUpgrade('3-4')) gain = gain.mul(UPGRADES[3][4].effect())
+            if (player.plasma.unl) gain = gain.mul(PLASMA.resources.mass.effect().cations)
+
+            let soft2 = E(1e20)
+            if (UPGRADES.includesUpgrade('3-9')) soft2 = soft2.mul(UPGRADES[3][9].effect())
+            gain = gain.softcap(soft2,0.1,0)
 
             return gain.floor()
         },
@@ -284,9 +292,11 @@ const FUNCTIONS = {
 
             eff.mult = E(1)
             if (CHALLENGES.cation.isIn(0)) eff.mult = x.mul(2).add(1).pow(3/4)
+            if (UPGRADES.includesUpgrade("4-3")) eff.mult = eff.mult.pow(UPGRADES[4][3].effect())
 
             eff.add = E(0)
             if (CHALLENGES.cation.isIn(0)) eff.add = x.add(1).pow(1/3).sub(1).softcap(10,5,1).softcap(50,1/5,0)
+            if (UPGRADES.includesUpgrade("4-3")) eff.add = eff.add.mul(UPGRADES[4][3].effect())
 
             return eff
         },
@@ -459,7 +469,7 @@ const BUYABLES = {
             id: 4,
             unl() { return player.eg_length > 1 },
             title: 'More Electrical Powers',
-            desc() { return 'Increase electrical powers from electrical generators multiplier by '+format(this.effect().base, 1)+', raise this effect by 1.5' },
+            desc() { return 'Increase electrical powers from electrical generators multiplier by '+format(this.effect().base, 1)+', raise this effect by '+format(this.effect().pow, 2) },
             cost(x = BUYABLES.electrons.getLevel(this.id)) { return E(3).pow(x.mul(UPGRADES.includesUpgrade('1-5')?0.85:1).mul(CHALLENGES.cation.completed(2)?0.85:1).mul(CHALLENGES.cation.isIn(2)?2:1)).mul(1000) },
             bulk() { return player.electrons.gte(1000)?player.electrons.div(1000).max(1).logBase(3).div(UPGRADES.includesUpgrade('1-5')?0.85:1).div(CHALLENGES.cation.completed(2)?0.85:1).div(CHALLENGES.cation.isIn(2)?2:1).add(1).floor():E(0) },
             effect(x = BUYABLES.electrons.getLevel(this.id)) {
@@ -469,8 +479,11 @@ const BUYABLES = {
                 let eff = {}
                 eff.base = E(1)
                 if (UPGRADES.includesUpgrade('2-5')) eff.base = eff.base.mul(UPGRADES[2][5].effect())
+                
+                eff.pow = E(1.5)
+                if (UPGRADES.includesUpgrade('2-13')) eff.pow = eff.pow.mul(UPGRADES[2][13].effect())
 
-                eff.mult = eff.base.mul(lvl).add(1).pow(1.5)
+                eff.mult = eff.base.mul(lvl).add(1).pow(eff.pow)
                 return eff
             },
             effDesc(x = this.effect()) { return format(x.mult, 1)+'x' }

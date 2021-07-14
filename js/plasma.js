@@ -6,6 +6,7 @@ const PLASMA = {
     getParticlesGain() {
         let gain = E(2).pow(player.plasma.points).sub(1)
         gain = gain.mul(PLASMA.resources.volume.effect().part)
+        gain = gain.mul(PLASMA.resources.mass.effect().part)
         if (UPGRADES.includesUpgrade('4-1')) gain = gain.mul(UPGRADES[4][1].effect())
         return gain.div(1e6)
     },
@@ -17,7 +18,7 @@ const PLASMA = {
             size: 70,
         },
         46: {
-            unl() { return false },
+            unl() { return player.plasma.points.gte(4) },
             type: 'text',
             text() { return `↗` },
             size: 70,
@@ -47,9 +48,11 @@ const PLASMA = {
             tooltip() { return `You have ${format(player.plasma.resources.volume)} (+${format(PLASMA.resources.volume.gain())}/s) m^3 of plasma, which boosts electrons and electrical powers from electrical generators gain by ${format(PLASMA.resources.volume.effect().mult,2)}x, and boosts plasma particles gain by ${format(PLASMA.resources.volume.effect().part,2)}x` },
         },
         37: {
-            unl() { return false },
+            unl() { return player.plasma.points.gte(4) },
             type: 'button',
             image: 'images/plasma_mass.png',
+            tab: 2,
+            tooltip() { return `You have ${format(player.plasma.resources.mass)} (+${format(PLASMA.resources.mass.gain())}/s) kg of plasma, which boosts anions gain by ${format(PLASMA.resources.mass.effect().anions,2)}x, boosts cations gain by ${format(PLASMA.resources.mass.effect().cations,2)}x, and boosts plasma particles gain by ${format(PLASMA.resources.mass.effect().part,2)}x` },
         },
         73: {
             unl() { return false },
@@ -88,7 +91,7 @@ const PLASMA = {
                 },
                 effect(x=player.plasma.volume_core) {
                     let eff = x.mul(1e3).add(1).log10().mul(1.5).add(1)
-                    return eff
+                    return eff.softcap(5,5,1)
                 },
                 canReset() { return this.gain().gte(1e-3) },
                 reset() {
@@ -101,6 +104,26 @@ const PLASMA = {
                     player.plasma.resources.volume = E(0)
                     player.plasma.buyables.volume = E(0)
                 },
+            },
+        },
+        mass: {
+            gain() {
+                let gain = E(1)
+                gain = gain.mul(this.getEffect())
+                if (player.plasma.buyables.mass.gte(1)) gain = gain.mul(PLASMA.buyables.mass.effect())
+                if (UPGRADES.includesUpgrade('1-13')) gain = gain.mul(UPGRADES[1][13].effect())
+                return gain.div(1e3)
+            },
+            effect(x=player.plasma.resources.mass.mul(1e3)) {
+                let eff = {}
+                eff.anions = x.add(1).pow(2)
+                eff.cations = x.add(1).log10().add(1)
+                eff.part = x.add(1).log10().div(2).add(1)
+                return eff
+            },
+            getEffect(x=player.anions.points, y=player.cations.points) {
+                let eff = x.add(1).log10().add(1).mul(y.add(1).log10().add(1))
+                return eff
             },
         },
     },
@@ -117,6 +140,20 @@ const PLASMA = {
             effect(x=player.plasma.buyables.volume) {
                 let eff = x.add(1)
                 if (player.plasma.volume_core.gte(1e-3)) eff = eff.pow(PLASMA.resources.volume.core.effect())
+                return eff
+            },
+        },
+        mass: {
+            cost(x=player.plasma.buyables.mass) { return E(1.5).pow(x).mul(10).div(1e6) },
+            canBuy() { return player.plasma.particles.gte(this.cost()) },
+            buy() {
+                if (this.canBuy()) {
+                    player.plasma.particles = player.plasma.particles.sub(this.cost())
+                    player.plasma.buyables.mass = player.plasma.buyables.mass.add(1)
+                }
+            },
+            effect(x=player.plasma.buyables.mass) {
+                let eff = x.add(1)
                 return eff
             },
         },
@@ -144,8 +181,12 @@ const PLASMA = {
         player.cations.gen_length = 0
         player.cations.gen_boosts = E(0)
         player.cations.chals.active = 0
-        player.cations.chals.completed = []
-        player.upgrades.buyed[3] = []
+        if (!UPGRADES.includesUpgrade("4-3")) player.cations.chals.completed = []
+
+        let keep = []
+        if (UPGRADES.includesUpgrade("4-5") && UPGRADES.includesUpgrade("3-3")) keep.push("3")
+        player.upgrades.buyed[3] = keep
+
         FUNCTIONS.cations.doReset()
     },
 }
